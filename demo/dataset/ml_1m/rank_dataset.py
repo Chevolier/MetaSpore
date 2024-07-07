@@ -40,6 +40,8 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
         .config("spark.sql.autoBroadcastJoinThreshold", "64MB")
         .config("spark.hadoop.mapreduce.outputcommitter.factory.scheme.s3a", "org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory")
         .config("spark.network.timeout","500")
+        .config("spark.driver.memory", "8g")
+        .config("spark.local.dir", "/home/ec2-user/SageMaker/tmp")
         .getOrCreate())
     
     sc = spark.sparkContext

@@ -72,7 +72,7 @@ def read_dataset(spark):
     print('Debug -- test dataset count:', test_dataset.count())
     return train_dataset, test_dataset
     
-def train(spark, trian_dataset, **model_params):
+def train(spark, train_dataset, **model_params):
     ## init wide and deep model
     module = WideDeep(use_wide=True,
                     wide_embedding_dim=embedding_size,
@@ -96,7 +96,7 @@ def train(spark, trian_dataset, **model_params):
                                   experiment_name=experiment_name,
                                   input_label_column_index=input_label_column_index,
                                   metric_update_interval=100)
-    model = estimator.fit(trian_dataset)
+    model = estimator.fit(train_dataset)
      ## dnn learning rate
     estimator.updater = ms.AdamTensorUpdater(adam_learning_rate)
     import subprocess

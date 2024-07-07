@@ -37,9 +37,11 @@ def load_config(path):
 def init_spark(app_name, executor_memory, executor_instances, executor_cores, 
                default_parallelism, **kwargs):
     subprocess.run(['zip', '-r', 'ml_1m/python.zip', 'common'], cwd='../')
+    
     spark = (SparkSession.builder
         .appName(app_name)
         .config("spark.executor.memory", executor_memory)
+        .config("spark.driver.memory", "8g")
         .config("spark.executor.instances", executor_instances)
         .config("spark.executor.cores", executor_cores)
         .config("spark.default.parallelism", default_parallelism)
@@ -49,6 +51,11 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
         .config("spark.network.timeout","500")
         .config("spark.hadoop.mapreduce.outputcommitter.factory.scheme.s3a", "org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory")
         .config("spark.submit.pyFiles", "python.zip")
+    #     # Add S3 configurations
+        .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+        .config("spark.hadoop.fs.s3.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+        # .config("spark.hadoop.fs.s3a.aws.credentials.provider", "com.amazonaws.auth.DefaultAWSCredentialsProviderChain")
+        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.4.0,com.amazonaws:aws-java-sdk-bundle:1.12.99,software.amazon.awssdk:s3:2.17.52,software.amazon.awssdk:auth:2.17.52")
         .getOrCreate())
     
     sc = spark.sparkContext
@@ -99,13 +106,13 @@ def read_dataset(movies_path, ratings_path, users_path, imdb_path, **kwargs):
     print('Debug -- users sample:')
     users.show(10)
 
-    ### read imdb datasets
-    imdb = spark.read.csv(imdb_path, sep=r'\t', inferSchema=False, header=True)
-    imdb = imdb.withColumn('imdb_url', F.concat(F.lit("https://www.imdb.com/title/"), F.col("tconst"), F.lit("/")))
-    print('Debug -- imdb sample:')
-    imdb.show(10)
+    # ### read imdb datasets
+    # imdb = spark.read.csv(imdb_path, sep=r'\t', inferSchema=False, header=True)
+    # imdb = imdb.withColumn('imdb_url', F.concat(F.lit("https://www.imdb.com/title/"), F.col("tconst"), F.lit("/")))
+    # print('Debug -- imdb sample:')
+    # imdb.show(10)
 
-    return users, movies, ratings, imdb
+    return users, movies, ratings # , imdb
 
 def merge_dataset(users, movies, ratings):
     # merge movies, users, ratings
@@ -146,7 +153,7 @@ if __name__=="__main__":
     spark = init_spark(**params)
 
     ## preprocessing
-    users, movies, ratings, imdb = read_dataset(**params)
+    users, movies, ratings = read_dataset(**params)  # , imdb
     merged_dataset = merge_dataset(users, movies, ratings)
 
     ## generate sparse features

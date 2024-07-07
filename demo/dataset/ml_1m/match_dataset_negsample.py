@@ -49,6 +49,8 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
         .config("spark.submit.pyFiles", "python.zip")
         .config("spark.network.timeout","500")
         .config("spark.ui.showConsoleProgress", "true")
+        .config("spark.driver.memory", "8g")
+        .config("spark.local.dir", "/home/ec2-user/SageMaker/tmp")
         .getOrCreate())
     
     sc = spark.sparkContext
@@ -83,7 +85,8 @@ def negative_sampling_train_dataset(spark, train_fg_dataset, num_negs, verbose=T
                                 how='leftouter')\
                             .select('t1.label', \
                                 't1.user_id', 't2.gender', 't2.age', 't2.occupation', 't2.zip', \
-                                't1.movie_id', 't2.recent_movie_ids', 't2.genre', 't1.rating', \
+                                't1.movie_id', 't2.recent_movie_ids', 't2.recent_movie_genres', \
+                                't2.recent_movie_years', 't2.year', 't2.genre', 't1.rating', \
                                 't2.last_movie', 't2.last_genre')
 
     # show negative sampling result

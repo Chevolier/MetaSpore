@@ -40,6 +40,7 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
     spark = (SparkSession.builder
         .appName(app_name)
         .config("spark.executor.memory", executor_memory)
+        .config("spark.driver.memory", "8g")
         .config("spark.executor.instances", executor_instances)
         .config("spark.executor.cores", executor_cores)
         .config("spark.default.parallelism", default_parallelism)
@@ -49,6 +50,7 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
         .config("spark.network.timeout","500")
         .config("spark.submit.pyFiles", "python.zip")
         .config("spark.ui.showConsoleProgress", "true")
+        .config("spark.local.dir", "/home/ec2-user/SageMaker/tmp")
         .getOrCreate())
     
     sc = spark.sparkContext
@@ -85,6 +87,9 @@ def negative_sampling_train_dataset(spark, train_fg_dataset, num_negs, verbose=T
                                 't1.user_id', \
                                 't1.movie_id', \
                                 't2.recent_movie_ids', \
+                                't2.recent_movie_genres', \
+                                't2.recent_movie_years', \
+                                't2.year', \
                                 't2.genre', \
                                 't1.rating', \
                                 't2.last_movie', \
@@ -98,6 +103,7 @@ def negative_sampling_train_dataset(spark, train_fg_dataset, num_negs, verbose=T
         neg_sample_df.show(10)
         print('Debug -- negative sampling total cost time:', time.time() - start)
     return neg_sample_df
+
 
 def prepare_train(spark, train_fg_dataset, train_neg_sample, verbose=True):
     train_fg_dataset = train_fg_dataset.drop('timestamp')

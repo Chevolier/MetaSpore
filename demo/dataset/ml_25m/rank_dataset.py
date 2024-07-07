@@ -34,6 +34,7 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
     spark = (SparkSession.builder
         .appName(app_name)
         .config("spark.executor.memory", executor_memory)
+        .config("spark.driver.memory", "8g")
         .config("spark.executor.instances", executor_instances)
         .config("spark.executor.cores", executor_cores)
         .config("spark.default.parallelism", default_parallelism)
@@ -42,6 +43,7 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
         .config("spark.sql.autoBroadcastJoinThreshold", "64MB")
         .config("spark.network.timeout","500")
         .config("spark.ui.showConsoleProgress", "true")
+        .config("spark.local.dir", "/home/ec2-user/SageMaker/tmp")
         .getOrCreate())
     
     sc = spark.sparkContext

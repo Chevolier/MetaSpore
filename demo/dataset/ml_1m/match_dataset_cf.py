@@ -49,6 +49,8 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
         .config("spark.submit.pyFiles", "python.zip")
         .config("spark.network.timeout","500")
         .config("spark.ui.showConsoleProgress", "true")
+        .config("spark.driver.memory", "8g")
+        .config("spark.local.dir", "/home/ec2-user/SageMaker/tmp")
         .getOrCreate())
     
     sc = spark.sparkContext

@@ -41,6 +41,7 @@ def init_spark(app_name, executor_memory, executor_instances, executor_cores,
     spark = (SparkSession.builder
         .appName(app_name)
         .config("spark.executor.memory", executor_memory)
+        .config("spark.driver.memory", "8g")
         .config("spark.executor.instances", executor_instances)
         .config("spark.executor.cores", executor_cores)
         .config("spark.default.parallelism", default_parallelism)

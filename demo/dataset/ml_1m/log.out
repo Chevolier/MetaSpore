@@ -1,0 +1,212 @@
+nohup: ignoring input
+updating: common/ (stored 0%)
+updating: common/neg_sampler.py (deflated 65%)
+updating: common/__init__.py (deflated 38%)
+updating: common/criteo_sparse_features_extractor.py (deflated 54%)
+updating: common/ml_sparse_features_extractor.py (deflated 76%)
+updating: common/__pycache__/ (stored 0%)
+updating: common/__pycache__/ml_sparse_features_extractor.cpython-38.pyc (deflated 63%)
+updating: common/__pycache__/__init__.cpython-38.pyc (deflated 19%)
+updating: common/__pycache__/neg_sampler.cpython-38.pyc (deflated 51%)
+:: loading settings :: url = jar:file:/home/ec2-user/anaconda3/envs/metaspore/lib/python3.8/site-packages/pyspark/jars/ivy-2.5.1.jar!/org/apache/ivy/core/settings/ivysettings.xml
+Ivy Default Cache set to: /home/ec2-user/.ivy2/cache
+The jars for the packages stored in: /home/ec2-user/.ivy2/jars
+org.apache.hadoop#hadoop-aws added as a dependency
+com.amazonaws#aws-java-sdk-bundle added as a dependency
+software.amazon.awssdk#s3 added as a dependency
+software.amazon.awssdk#auth added as a dependency
+:: resolving dependencies :: org.apache.spark#spark-submit-parent-ce25282c-b40a-4d63-a8c7-f32cceffb638;1.0
+	confs: [default]
+	found org.apache.hadoop#hadoop-aws;3.4.0 in central
+	found software.amazon.awssdk#bundle;2.23.19 in central
+	found org.wildfly.openssl#wildfly-openssl;1.1.3.Final in central
+	found com.amazonaws#aws-java-sdk-bundle;1.12.99 in central
+	found software.amazon.awssdk#s3;2.17.52 in central
+	found software.amazon.awssdk#aws-xml-protocol;2.17.52 in central
+	found software.amazon.awssdk#aws-query-protocol;2.17.52 in central
+	found software.amazon.awssdk#protocol-core;2.17.52 in central
+	found software.amazon.awssdk#sdk-core;2.17.52 in central
+	found software.amazon.awssdk#annotations;2.17.52 in central
+	found software.amazon.awssdk#http-client-spi;2.17.52 in central
+	found software.amazon.awssdk#utils;2.17.52 in central
+	found org.reactivestreams#reactive-streams;1.0.3 in central
+	found org.slf4j#slf4j-api;1.7.30 in central
+	found software.amazon.awssdk#metrics-spi;2.17.52 in central
+	found software.amazon.awssdk#profiles;2.17.52 in central
+	found software.amazon.awssdk#aws-core;2.17.52 in central
+	found software.amazon.awssdk#regions;2.17.52 in central
+	found software.amazon.awssdk#json-utils;2.17.52 in central
+	found software.amazon.awssdk#third-party-jackson-core;2.17.52 in central
+	found software.amazon.awssdk#auth;2.17.52 in central
+	found software.amazon.eventstream#eventstream;1.0.1 in central
+	found software.amazon.awssdk#arns;2.17.52 in central
+	found software.amazon.awssdk#apache-client;2.17.52 in central
+	found org.apache.httpcomponents#httpclient;4.5.13 in central
+	found org.apache.httpcomponents#httpcore;4.4.11 in central
+	found commons-logging#commons-logging;1.2 in central
+	found commons-codec#commons-codec;1.11 in central
+	found software.amazon.awssdk#netty-nio-client;2.17.52 in central
+	found io.netty#netty-codec-http;4.1.68.Final in central
+	found io.netty#netty-common;4.1.68.Final in central
+	found io.netty#netty-buffer;4.1.68.Final in central
+	found io.netty#netty-transport;4.1.68.Final in central
+	found io.netty#netty-resolver;4.1.68.Final in central
+	found io.netty#netty-codec;4.1.68.Final in central
+	found io.netty#netty-handler;4.1.68.Final in central
+	found io.netty#netty-codec-http2;4.1.68.Final in central
+	found io.netty#netty-transport-native-epoll;4.1.68.Final in central
+	found io.netty#netty-transport-native-unix-common;4.1.68.Final in central
+	found com.typesafe.netty#netty-reactive-streams-http;2.0.5 in central
+	found com.typesafe.netty#netty-reactive-streams;2.0.5 in central
+:: resolution report :: resolve 557ms :: artifacts dl 13ms
+	:: modules in use:
+	com.amazonaws#aws-java-sdk-bundle;1.12.99 from central in [default]
+	com.typesafe.netty#netty-reactive-streams;2.0.5 from central in [default]
+	com.typesafe.netty#netty-reactive-streams-http;2.0.5 from central in [default]
+	commons-codec#commons-codec;1.11 from central in [default]
+	commons-logging#commons-logging;1.2 from central in [default]
+	io.netty#netty-buffer;4.1.68.Final from central in [default]
+	io.netty#netty-codec;4.1.68.Final from central in [default]
+	io.netty#netty-codec-http;4.1.68.Final from central in [default]
+	io.netty#netty-codec-http2;4.1.68.Final from central in [default]
+	io.netty#netty-common;4.1.68.Final from central in [default]
+	io.netty#netty-handler;4.1.68.Final from central in [default]
+	io.netty#netty-resolver;4.1.68.Final from central in [default]
+	io.netty#netty-transport;4.1.68.Final from central in [default]
+	io.netty#netty-transport-native-epoll;4.1.68.Final from central in [default]
+	io.netty#netty-transport-native-unix-common;4.1.68.Final from central in [default]
+	org.apache.hadoop#hadoop-aws;3.4.0 from central in [default]
+	org.apache.httpcomponents#httpclient;4.5.13 from central in [default]
+	org.apache.httpcomponents#httpcore;4.4.11 from central in [default]
+	org.reactivestreams#reactive-streams;1.0.3 from central in [default]
+	org.slf4j#slf4j-api;1.7.30 from central in [default]
+	org.wildfly.openssl#wildfly-openssl;1.1.3.Final from central in [default]
+	software.amazon.awssdk#annotations;2.17.52 from central in [default]
+	software.amazon.awssdk#apache-client;2.17.52 from central in [default]
+	software.amazon.awssdk#arns;2.17.52 from central in [default]
+	software.amazon.awssdk#auth;2.17.52 from central in [default]
+	software.amazon.awssdk#aws-core;2.17.52 from central in [default]
+	software.amazon.awssdk#aws-query-protocol;2.17.52 from central in [default]
+	software.amazon.awssdk#aws-xml-protocol;2.17.52 from central in [default]
+	software.amazon.awssdk#bundle;2.23.19 from central in [default]
+	software.amazon.awssdk#http-client-spi;2.17.52 from central in [default]
+	software.amazon.awssdk#json-utils;2.17.52 from central in [default]
+	software.amazon.awssdk#metrics-spi;2.17.52 from central in [default]
+	software.amazon.awssdk#netty-nio-client;2.17.52 from central in [default]
+	software.amazon.awssdk#profiles;2.17.52 from central in [default]
+	software.amazon.awssdk#protocol-core;2.17.52 from central in [default]
+	software.amazon.awssdk#regions;2.17.52 from central in [default]
+	software.amazon.awssdk#s3;2.17.52 from central in [default]
+	software.amazon.awssdk#sdk-core;2.17.52 from central in [default]
+	software.amazon.awssdk#third-party-jackson-core;2.17.52 from central in [default]
+	software.amazon.awssdk#utils;2.17.52 from central in [default]
+	software.amazon.eventstream#eventstream;1.0.1 from central in [default]
+	---------------------------------------------------------------------
+	|                  |            modules            ||   artifacts   |
+	|       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+	---------------------------------------------------------------------
+	|      default     |   41  |   0   |   0   |   0   ||   41  |   0   |
+	---------------------------------------------------------------------
+:: retrieving :: org.apache.spark#spark-submit-parent-ce25282c-b40a-4d63-a8c7-f32cceffb638
+	confs: [default]
+	0 artifacts copied, 41 already retrieved (0kB/11ms)
+24/07/07 11:21:50 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+24/07/07 11:21:55 WARN MetricsConfig: Cannot locate configuration: tried hadoop-metrics2-s3a-file-system.properties,hadoop-metrics2.properties
+[Stage 8:>                                                                                                                           (0 + 6) / 6][Stage 10:>                                                                                                                        (0 + 28) / 28][Stage 10:============================================================================================================>            (25 + 3) / 28]                                                                                                                                                 [Stage 14:>                      (3 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:=>                    (28 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:==>                   (37 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:===>                  (70 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:=====>               (100 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:======>              (128 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:========>            (164 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:==========>          (196 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:============>        (229 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:==============>      (275 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:================>    (311 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1][Stage 14:==================>  (343 + 32) / 400][Stage 15:>                         (0 + 0) / 1][Stage 16:>                         (0 + 0) / 1]                                                                                                                                                 [Stage 35:=====>               (106 + 33) / 400][Stage 36:>                         (0 + 0) / 1][Stage 37:>                         (0 + 0) / 1][Stage 35:=======>             (144 + 32) / 400][Stage 36:>                         (0 + 0) / 1][Stage 37:>                         (0 + 0) / 1][Stage 35:=========>           (184 + 32) / 400][Stage 36:>                         (0 + 0) / 1][Stage 37:>                         (0 + 0) / 1][Stage 35:===========>         (226 + 32) / 400][Stage 36:>                         (0 + 0) / 1][Stage 37:>                         (0 + 0) / 1][Stage 35:=============>       (258 + 32) / 400][Stage 36:>                         (0 + 0) / 1][Stage 37:>                         (0 + 0) / 1][Stage 35:===============>     (293 + 32) / 400][Stage 36:>                         (0 + 0) / 1][Stage 37:>                         (0 + 0) / 1][Stage 35:=================>   (326 + 32) / 400][Stage 36:>                         (0 + 0) / 1][Stage 37:>                         (0 + 0) / 1][Stage 35:==================>  (358 + 32) / 400][Stage 36:>                         (0 + 0) / 1][Stage 37:>                         (0 + 0) / 1]                                                                                                                                                 [Stage 43:>                                                                                                                       (0 + 32) / 200][Stage 43:===============>                                                                                                       (26 + 32) / 200][Stage 43:===================>                                                                                                   (32 + 32) / 200][Stage 43:====================>                                                                                                  (35 + 32) / 200][Stage 43:=================================>                                                                                     (57 + 32) / 200][Stage 43:=====================================>                                                                                 (63 + 32) / 200][Stage 43:========================================>                                                                              (68 + 32) / 200][Stage 43:====================================================>                                                                  (89 + 32) / 200][Stage 43:========================================================>                                                              (95 + 32) / 200][Stage 43:===========================================================>                                                          (101 + 32) / 200][Stage 43:===================================================================>                                                  (115 + 32) / 200][Stage 43:==========================================================================>                                           (127 + 32) / 200][Stage 43:===============================================================================>                                      (134 + 32) / 200][Stage 43:=========================================================================================>                            (151 + 32) / 200][Stage 43:=============================================================================================>                        (159 + 32) / 200][Stage 43:==============================================================================================>                       (160 + 32) / 200][Stage 43:==================================================================================================>                   (167 + 32) / 200][Stage 43:==========================================================================================================>           (181 + 19) / 200][Stage 43:===============================================================================================================>      (189 + 11) / 200][Stage 43:==================================================================================================================>    (192 + 8) / 200][Stage 43:======================================================================================================================>(199 + 1) / 200]                                                                                                                                                 Debug -- Movielens 1M Feature Generation
+Debug -- conf: fg.yaml.dev verbose: True
+Debug -- load config:  {'app_name': 'MovieLens 1M Feature Generation', 'executor_memory': '10G', 'executor_instances': '4', 'executor_cores': '4', 'default_parallelism': '400', 'movies_path': 's3a://sagemaker-us-west-2-452145973879/datasets/movielens/ml-1m/movies.dat', 'ratings_path': 's3a://sagemaker-us-west-2-452145973879/datasets/movielens/ml-1m/ratings.dat', 'users_path': 's3a://sagemaker-us-west-2-452145973879/datasets/movielens/ml-1m/users.dat', 'imdb_path': 's3a://sagemaker-us-west-2-452145973879/datasets/movielens/ml-1m/movie_ml_imdb.csv', 'fg_dataset_out_path': 's3a://sagemaker-us-west-2-452145973879/datasets/movielens/1m/fg/fg_dataset.parquet'}
+Debug -- spark init
+Debug -- version: 3.5.1
+Debug -- applicaitonId: local-1720351312427
+Debug -- uiWebUrl: http://ip-172-16-14-249.us-west-2.compute.internal:4040
+Debug -- movies sample:
++--------+--------------------+--------------------+
+|movie_id|               title|               genre|
++--------+--------------------+--------------------+
+|       1|    Toy Story (1995)|Animation|Childre...|
+|       2|      Jumanji (1995)|Adventure|Childre...|
+|       3|Grumpier Old Men ...|      Comedy|Romance|
+|       4|Waiting to Exhale...|        Comedy|Drama|
+|       5|Father of the Bri...|              Comedy|
+|       6|         Heat (1995)|Action|Crime|Thri...|
+|       7|      Sabrina (1995)|      Comedy|Romance|
+|       8| Tom and Huck (1995)|Adventure|Children's|
+|       9| Sudden Death (1995)|              Action|
+|      10|    GoldenEye (1995)|Action|Adventure|...|
++--------+--------------------+--------------------+
+only showing top 10 rows
+
+Debug -- ratings sample:
++-------+--------+------+---------+
+|user_id|movie_id|rating|timestamp|
++-------+--------+------+---------+
+|      1|    1193|   5.0|978300760|
+|      1|     661|   3.0|978302109|
+|      1|     914|   3.0|978301968|
+|      1|    3408|   4.0|978300275|
+|      1|    2355|   5.0|978824291|
+|      1|    1197|   3.0|978302268|
+|      1|    1287|   5.0|978302039|
+|      1|    2804|   5.0|978300719|
+|      1|     594|   4.0|978302268|
+|      1|     919|   4.0|978301368|
++-------+--------+------+---------+
+only showing top 10 rows
+
+Debug -- users sample:
++-------+------+---+----------+-----+
+|user_id|gender|age|occupation|  zip|
++-------+------+---+----------+-----+
+|      1|     F|  1|        10|48067|
+|      2|     M| 56|        16|70072|
+|      3|     M| 25|        15|55117|
+|      4|     M| 45|         7|02460|
+|      5|     M| 25|        20|55455|
+|      6|     F| 50|         9|55117|
+|      7|     M| 35|         1|06810|
+|      8|     M| 25|        12|11413|
+|      9|     M| 25|        17|61614|
+|     10|     F| 35|         1|95370|
++-------+------+---+----------+-----+
+only showing top 10 rows
+
+Debug -- dataset sample:
++-------+------+---+----------+-----+--------+--------------------+--------------------+------+---------+----+
+|user_id|gender|age|occupation|  zip|movie_id|               title|               genre|rating|timestamp|year|
++-------+------+---+----------+-----+--------+--------------------+--------------------+------+---------+----+
+|      1|     F|  1|        10|48067|    1193|One Flew Over the...|               Drama|   5.0|978300760|1975|
+|      1|     F|  1|        10|48067|     661|James and the Gia...|Animation|Childre...|   3.0|978302109|1996|
+|      1|     F|  1|        10|48067|     914| My Fair Lady (1964)|     Musical|Romance|   3.0|978301968|1964|
+|      1|     F|  1|        10|48067|    3408|Erin Brockovich (...|               Drama|   4.0|978300275|2000|
+|      1|     F|  1|        10|48067|    2355|Bug's Life, A (1998)|Animation|Childre...|   5.0|978824291|1998|
+|      1|     F|  1|        10|48067|    1197|Princess Bride, T...|Action|Adventure|...|   3.0|978302268|1987|
+|      1|     F|  1|        10|48067|    1287|      Ben-Hur (1959)|Action|Adventure|...|   5.0|978302039|1959|
+|      1|     F|  1|        10|48067|    2804|Christmas Story, ...|        Comedy|Drama|   5.0|978300719|1983|
+|      1|     F|  1|        10|48067|     594|Snow White and th...|Animation|Childre...|   4.0|978302268|1937|
+|      1|     F|  1|        10|48067|     919|Wizard of Oz, The...|Adventure|Childre...|   4.0|978301368|1939|
++-------+------+---+----------+-----+--------+--------------------+--------------------+------+---------+----+
+only showing top 10 rows
+
+Debug -- movliens-1m generate_sparse_features_1m sparse features cost time: 4.608506917953491
+Debug -- movliens-1m generate_sparse_features_1m result sample:
++-----+-------+------+---+----------+-----+--------+--------------------+--------------------+--------------------+----+--------------------+------+----------+--------------------+---------+
+|label|user_id|gender|age|occupation|  zip|movie_id|    recent_movie_ids| recent_movie_genres|  recent_movie_years|year|               genre|rating|last_movie|          last_genre|timestamp|
++-----+-------+------+---+----------+-----+--------+--------------------+--------------------+--------------------+----+--------------------+------+----------+--------------------+---------+
+|    1|   3180|     M| 25|        14|07430|    3671|15001923150562...|Comedy|CrimeCome...|19971998199519...|1974|      ComedyWestern|   5.0|      3504|        ComedyDrama|968800489|
+|    1|   5123|     M| 50|        12|34761|    3537|33173189355634...|Comedy|DramaCome...|20001999199920...|2000|        ComedyDrama|   3.0|      3618|              Comedy|962202232|
+|    1|   5123|     M| 50|        12|34761|    3501|27623006299726...|ThrillerDramaCo...|19991999199919...|1985|      ComedyRomance|   4.0|      2001|ActionComedyCri...|962203063|
+|    1|      1|     F|  1|        10|48067|    2355|11975942398154...|Action|Adventure|...|19871937194719...|1998|AnimationChildre...|   5.0|       588|AnimationChildre...|978824291|
+|    1|   4090|     M| 56|         6|77379|    2070|29732716219420...|ComedyComedy|Hor...|19891984198719...|1983|               Drama|   2.0|      2987|AdventureAnimati...|965427034|
+|    1|   4090|     M| 56|         6|77379|     589|24632762608124...|ComedyThrillerC...|19861999199619...|1991|ActionSci-FiThr...|   3.0|      1213|         CrimeDrama|965427449|
+|    1|   1114|     F| 18|         9|75801|    2080|12301265139311...|Comedy|RomanceCo...|19771993199619...|1955|AnimationChildre...|   4.0|        39|      ComedyRomance|974915632|
+|    1|      1|     F|  1|        10|48067|    1193|31861022127017...|DramaAnimation|C...|19991950198519...|1975|               Drama|   5.0|      2804|        ComedyDrama|978300760|
+|    1|      1|     F|  1|        10|48067|     919|12701721234018...|Comedy|Sci-FiDra...|19851997199819...|1939|AdventureChildre...|   4.0|       260|ActionAdventure...|978301368|
+|    1|   5123|     M| 50|        12|34761|    3535|35363752356637...|Comedy|RomanceCo...|20002000200020...|2000|ComedyHorrorThr...|   1.0|      3301|        ComedyCrime|962202264|
++-----+-------+------+---+----------+-----+--------+--------------------+--------------------+--------------------+----+--------------------+------+----------+--------------------+---------+
+only showing top 10 rows
+
+Debug -- movliens-1m generate_sparse_features_1m sparse features total cost time: 8.376909971237183
+Debug -- write_fg_dataset_to_s3 cost time: 109.2111349105835
+Debug -- spark stop
