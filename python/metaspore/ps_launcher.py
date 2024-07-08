@@ -132,6 +132,7 @@ class PSLauncher(object):
         builder = pyspark.sql.SparkSession.builder
         if self._job_name is not None:
             builder.appName(self._job_name)
+            
         spark_session = builder.getOrCreate()
         try:
             if self._spark_log_level is not None:
