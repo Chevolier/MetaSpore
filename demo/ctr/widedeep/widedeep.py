@@ -38,8 +38,6 @@ def init_spark():
     spark_confs={
         "spark.network.timeout":"500",
         "spark.submit.pyFiles":"python.zip",
-        "spark.local.dir":"/home/ec2-user/SageMaker/tmp",
-        "spark.executor.cores": 2
     }
     spark_session = ms.spark.get_session(local=local,
                                         app_name=app_name,
@@ -64,13 +62,13 @@ def stop_spark(spark):
 
 def read_dataset(spark):
     train_dataset=spark.read.parquet(train_path)
-    train_dataset = train_dataset.limit(100)
     test_dataset=spark.read.parquet(test_path)
-    test_dataset = test_dataset.limit(100)
     print('Debug -- match train dataset sample:')
     train_dataset.show(10)
-    print('Debug--match train test dataset sample:')
+    print('Debug--match test dataset sample:')
     test_dataset.show(10)
+    train_dataset = train_dataset.limit(100000)
+    test_dataset = test_dataset.limit(2000)
     print('Debug -- train dataset positive count:', train_dataset[train_dataset['label']=='1'].count())
     print('Debug -- train dataset negative count:', train_dataset[train_dataset['label']=='0'].count())
     print('Debug -- test dataset count:', test_dataset.count())
@@ -127,9 +125,7 @@ if __name__=="__main__":
     parser.add_argument('--conf', type=str, action='store', default='', help='config file path')
     args = parser.parse_args()
     params = load_config(args.conf)
-    print('Before update:', locals())
     locals().update(params)
-    print('After update:', locals())
     spark = init_spark()
     ## read datasets
     train_dataset, test_dataset = read_dataset(spark)

@@ -1,12 +1,12 @@
 ## spark session
 app_name: 'WideDeep Demo'
 local: False
-worker_count: 2
-server_count: 2
-batch_size: 1
+worker_count: 4
+server_count: 4
+batch_size: 60
 worker_memory: '10G'
 server_memory: '10G'
-coordinator_memory: '30G'
+coordinator_memory: '10G'
 
 ## datasets
 train_path: s3a://sagemaker-us-west-2-452145973879/datasets/movielens/1m/rank/train.parquet
