@@ -19,3 +19,4 @@ python.zip
 /java/recommend-service/.idea/
 .venv
 tutorials/output
+*.whl
