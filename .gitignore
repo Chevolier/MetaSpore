@@ -20,3 +20,4 @@ python.zip
 .venv
 tutorials/output
 *.whl
+.DS_Store

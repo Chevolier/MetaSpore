@@ -200,4 +200,83 @@ status FeatureSchemaParser::parse_hash_and_combine(std::istream &is, FeatureComp
     }
     return exec.add_projection(std::move(expressions));
 }
+    
+status FeatureSchemaParser::parse_hash_and_combine(std::istream &is, FeatureComputeExec &exec, int &feature_count) {
+    // parse combine directives in form column1#column2#columnN
+    std::string line;
+    std::vector<std::string> feature_columns;
+    std::vector<cp::Expression> expressions;
+    std::vector<double> weights;
+
+    while (std::getline(is, line)) {
+        fmt::print("{}\n", line);
+        feature_columns.clear();
+        weights.clear();
+        boost::trim_if(line, boost::is_any_of("# \t\n\r"));
+        if (line.empty())
+            break;
+
+        // Split the line into subparts using \001
+        std::vector<std::string> subparts;
+        boost::split(subparts, line, boost::is_any_of("\001"));
+
+        for (const auto &subpart : subparts) {
+            // Split the subpart into value and weight using \003
+            std::vector<std::string> sections;
+            boost::split(sections, subpart, boost::is_any_of("\003"));
+
+            if (sections.size() != 2) {
+                auto m = fmt::format("Parsing subpart failed {}", subpart);
+                spdlog::error(m);
+                return absl::InvalidArgumentError(m);
+            }
+
+            const std::string &value = sections[0];
+            const std::string &weight_str = sections[1];
+
+            // Add the value to the feature columns
+            feature_columns.push_back(value);
+
+            // Convert the weight to double and add it to the weights vector
+            try {
+                weights.push_back(std::stod(weight_str));
+            } catch (const std::invalid_argument &e) {
+                auto m = fmt::format("Invalid weight format {}", weight_str);
+                spdlog::error(m);
+                return absl::InvalidArgumentError(m);
+            }
+        }
+
+        if (feature_columns.empty())
+            continue;
+        if (feature_columns.size() == 1) {
+            // only one column, just create a bkdr_hash expression
+            expressions.push_back(
+                cp::call("bkdr_hash", {cp::field_ref(feature_columns[0])},
+                         StringBKDRHashFunctionOption::Make(feature_columns[0])));
+            spdlog::info("add expr {}", expressions.back().ToString());
+        } else {
+            // more than one column, create bkdr_hash for each one and bkdr_hash_combine them
+            auto subexpressions = feature_columns |
+                                  ranges::views::transform([](const std::string &name) {
+                                      return cp::call("bkdr_hash", {cp::field_ref(name)},
+                                                      StringBKDRHashFunctionOption::Make(name));
+                                  }) |
+                                  ranges::to<std::vector>();
+            expressions.push_back(cp::call("bkdr_hash_combine", std::move(subexpressions),
+                                           BKDRHashCombineFunctionOption::Make()));
+            spdlog::info("add expr {}", expressions.back().ToString());
+        }
+        feature_count++;
+    }
+
+    // Assuming you want to use weights in some way, add logic here if required.
+    // For now, just logging the weights.
+    for (const auto &weight : weights) {
+        spdlog::info("weight: {}", weight);
+    }
+
+    return exec.add_projection(std::move(expressions));
+}
+    
 } // namespace metaspore
