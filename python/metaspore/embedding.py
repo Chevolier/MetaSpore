@@ -28,6 +28,9 @@ from .file_utils import file_exists
 from .name_utils import is_valid_qualified_name
 from .updater import TensorUpdater
 from .initializer import TensorInitializer
+from .schema_utils import split_value_weight
+import numpy as np
+
 
 #declare a class which we generate a onnx file to represent the sumconcat logic after Lookup
 class EmbeddingBagModule(torch.nn.Module):
@@ -38,8 +41,8 @@ class EmbeddingBagModule(torch.nn.Module):
         self.feature_count = feature_count
         self.embedding_bag_mode = mode
 
-    def forward(self, input, weight, offsets, batch_size):
-        embs = torch.nn.functional.embedding_bag(input, weight, offsets, mode=self.embedding_bag_mode)
+    def forward(self, input, weight, offsets, batch_size, per_sample_weights=None):
+        embs = torch.nn.functional.embedding_bag(input, weight, offsets, mode=self.embedding_bag_mode, per_sample_weights=per_sample_weights)
         return embs.reshape(batch_size, self.second_dim)
 
     def export_onnx(self, path, name):
@@ -369,6 +372,7 @@ class EmbeddingOperator(torch.nn.Module):
     def _is_clean(self):
         return (self._indices is None and
                 self._indices_meta is None and
+                self._per_sample_weights is None and
                 self._keys is None and
                 self._data is None)
 
@@ -376,6 +380,7 @@ class EmbeddingOperator(torch.nn.Module):
     def _clean(self):
         self._indices = None
         self._indices_meta = None
+        self._per_sample_weights = None
         self._keys = None
         self._data = None
         self._output = torch.tensor(0.0)
@@ -467,11 +472,25 @@ class EmbeddingOperator(torch.nn.Module):
     @torch.jit.unused
     def _combine_to_indices_and_offsets(self, minibatch, feature_offset):
         import pyarrow as pa
-        batch = pa.RecordBatch.from_pandas(minibatch)
+        minibatch_value, minibatch_weight = split_value_weight(minibatch)
+        flat_weights = [weight for sublist in minibatch_weight.values.flatten() for weight in sublist]
+        per_sample_weights = np.array(flat_weights, dtype=np.float32)
+
+        # do feature extraction using only minibatch_value
+        batch = pa.RecordBatch.from_pandas(minibatch_value)
         indices, offsets = self._feature_extractor.extract(batch)
+
+        # print(f"minibatch_value: {type(minibatch_value)}, {minibatch_value}")
+        # print(f"minibatch_weight: {type(minibatch_weight)}, {minibatch_weight}")
+        # print(f"per_sample_weights: {type(per_sample_weights)}, {per_sample_weights.shape}, {per_sample_weights}")
+        # print(f"batch: {type(batch)}, {batch.to_pandas()}")
+        # print("self._feature_extractor results")
+        # print(f"indices: {type(indices)}, {indices.shape}, {indices}")
+        # print(f"offsets: {type(offsets)}, {offsets.shape}, {offsets}")
+
         if not feature_offset:
             offsets = offsets[::self.feature_count]
-        return indices, offsets
+        return indices, offsets, per_sample_weights
 
     @torch.jit.unused
     def _do_combine(self, minibatch):
@@ -486,7 +505,7 @@ class EmbeddingOperator(torch.nn.Module):
     def _combine(self, minibatch):
         self._clean()
         self._ensure_combine_schema_loaded()
-        self._indices, self._indices_meta = self._do_combine(minibatch)
+        self._indices, self._indices_meta, self._per_sample_weights = self._do_combine(minibatch)
         self._keys = self._uniquify_hash_codes(self._indices)
 
     @torch.jit.unused
@@ -505,8 +524,20 @@ class EmbeddingOperator(torch.nn.Module):
         offsets = self._indices_meta
         offsets_1d = torch.from_numpy(offsets.view(numpy.int64))
 
+        per_sample_weights = self._per_sample_weights
+        per_sample_weights_1d = torch.from_numpy(per_sample_weights.view(numpy.float32))
+
+        # print("self._compute_sum_concat results")
+        # print(f"feature count: {feature_count}")
+        # print(f"self._data: {type(self._data)}, {self._data.shape}, {self._data}")
+        # print(f"indices: {type(indices)}, {indices.shape}, {indices}")
+        # print(f"indices_1d: {type(indices_1d)}, {indices_1d.shape}, {indices_1d}")
+        # print(f"offsets: {type(offsets)}, {offsets.shape}, {offsets}")
+        # print(f"offsets_1d: {type(offsets_1d)}, {offsets_1d.shape}, {offsets_1d}")
+        # print(f"per_sample_weights_1d: {type(per_sample_weights_1d)}, {per_sample_weights_1d.shape}, {per_sample_weights_1d}")
+
         # we use the forward method to replace the torch.nn.functional.embedding_bag
-        out = self.sparse_embedding_bag.forward(indices_1d, self._data, offsets_1d, minibatch_size)
+        out = self.sparse_embedding_bag.forward(indices_1d, self._data, offsets_1d, minibatch_size, per_sample_weights_1d)
 
         return out
 
@@ -518,24 +549,28 @@ class EmbeddingOperator(torch.nn.Module):
         indices_1d = torch.from_numpy(indices.view(numpy.int64))
         offsets = self._indices_meta
         offsets_1d = torch.from_numpy(offsets.astype(numpy.int64))
-        t = minibatch_size, embedding_size, indices_1d, offsets_1d
+
+        per_sample_weights = self._per_sample_weights
+        per_sample_weights_1d = torch.from_numpy(per_sample_weights.view(numpy.float32))
+
+        t = minibatch_size, embedding_size, indices_1d, offsets_1d, per_sample_weights_1d
         return t
 
     @torch.jit.unused
     def _compute_range_sum(self):
         self._check_embedding_bag_mode(self.embedding_bag_mode)
         t = self._compute_embedding_prepare()
-        minibatch_size, embedding_size, indices_1d, offsets_1d = t
+        minibatch_size, embedding_size, indices_1d, offsets_1d, per_sample_weights_1d = t
 
         # we use the forward method to replace the torch.nn.functional.embedding_bag
-        out = self.sparse_embedding_bag.forward(indices_1d, self._data, offsets_1d, minibatch_size)
+        out = self.sparse_embedding_bag.forward(indices_1d, self._data, offsets_1d, minibatch_size, per_sample_weights_1d)
 
         return out
 
     @torch.jit.unused
     def _compute_embedding_lookup(self):
         t = self._compute_embedding_prepare()
-        minibatch_size, embedding_size, indices_1d, offsets_1d = t
+        minibatch_size, embedding_size, indices_1d, offsets_1d, per_sample_weights_1d = t
         embs = torch.nn.functional.embedding(indices_1d, self._data)
         expected_shape = len(indices_1d), embedding_size
         if embs.shape != expected_shape:

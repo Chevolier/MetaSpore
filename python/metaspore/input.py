@@ -23,7 +23,7 @@ def shuffle_df(df, num_workers, column_name='srand'):
     df = df.drop(column_name)
     return df
 
-def read_s3_csv(spark_session, url, shuffle=False, num_workers=1,
+def read_s3_csv(spark_session, url, format='csv', shuffle=False, num_workers=1,
                 header=False, nullable=False, delimiter="\002", multivalue_delimiter="\001",
                 encoding="UTF-8", schema=None, column_names=None, multivalue_column_names=None):
     from .url_utils import use_s3a
@@ -31,15 +31,27 @@ def read_s3_csv(spark_session, url, shuffle=False, num_workers=1,
     from .schema_utils import make_csv_transformer
     schema = make_csv_schema(schema, column_names, multivalue_column_names)
     input_schema, df_transformer = make_csv_transformer(schema, multivalue_delimiter)
-    df = (spark_session
-             .read
-             .format('csv')
-             .option("header", str(bool(header)).lower())
-             .option("nullable", str(bool(nullable)).lower())
-             .option("delimiter", delimiter)
-             .option("encoding", encoding)
-             .schema(input_schema)
-             .load(use_s3a(url)))
+    if isinstance(url, str):
+        df = (spark_session
+                .read
+                .format(format)
+                .option("header", str(bool(header)).lower())
+                .option("nullable", str(bool(nullable)).lower())
+                .option("delimiter", delimiter)
+                .option("encoding", encoding)
+                .schema(input_schema)
+                .load(use_s3a(url)))
+    elif isinstance(url, list):
+        df = (spark_session
+                .read
+                .format(format)
+                .option("header", str(bool(header)).lower())
+                .option("nullable", str(bool(nullable)).lower())
+                .option("delimiter", delimiter)
+                .option("encoding", encoding)
+                .schema(input_schema)
+                .load([use_s3a(url1) for url1 in url]))
+        
     df = df_transformer(df)
     if shuffle and num_workers > 1:
         df = shuffle_df(df, num_workers)

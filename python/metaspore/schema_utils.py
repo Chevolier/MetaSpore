@@ -77,3 +77,39 @@ def make_csv_transformer(schema, multivalue_delimiter):
     input_schema = StructType(fields)
     df_transformer = lambda df: df.select(*expressions)
     return input_schema, df_transformer
+
+def split_value_weight(minibatch):
+    import pandas as pd
+    def split(items):
+        values = []
+        weights = []
+        for item in items:
+            if '\003' in item:
+                value, weight = item.split('\003')
+            else:
+                value, weight = '', 0
+            values.append(value)
+            weights.append(float(weight))
+        return values, weights
+
+    values_dict = {}
+    weights_dict = {}
+
+    for column in minibatch.columns:
+        if column == 'label':
+            continue
+        values_dict[column] = []
+        weights_dict[column] = []
+        for items in minibatch[column]:
+            try:
+                # items is an numpy.array
+                values, weights = split(items)
+                values_dict[column].append(values)
+                weights_dict[column].append(weights)
+            except Exception as e:
+                print(f"split_value_weight error, {e}, items: {items}")
+
+    minibatch_value = pd.DataFrame(values_dict)
+    minibatch_weight = pd.DataFrame(weights_dict)
+
+    return minibatch_value, minibatch_weight
