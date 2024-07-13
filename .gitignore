@@ -21,3 +21,4 @@ python.zip
 tutorials/output
 *.whl
 .DS_Store
+vcpkg_installed/
