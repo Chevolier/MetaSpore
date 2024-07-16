@@ -9,17 +9,17 @@ server_memory: '10G'
 coordinator_memory: '10G'
 
 ## datasets
-train_path: s3a://sagemaker-us-west-2-452145973879/datasets/movielens/1m/rank/train.parquet
-test_path: s3a://sagemaker-us-west-2-452145973879/datasets/movielens/1m/rank/test.parquet
+train_path: s3a://spark-emr-data/movielens/1m/rank/train.parquet
+test_path: s3a://spark-emr-data/movielens/1m/rank/test.parquet
 
 ## model configurations
-column_name_path: s3a://sagemaker-us-west-2-452145973879/datasets/movielens/schema/ml_1m/column_schema
-combine_schema_path: s3a://sagemaker-us-west-2-452145973879/datasets/movielens/schema/ml_1m/combine_column_schema
-wide_combine_schema_path: s3a://sagemaker-us-west-2-452145973879/datasets/movielens/schema/ml_1m/wide_combine_column_schema
+column_name_path: s3a://spark-emr-data/movielens/schema/ml_1m/column_schema
+combine_schema_path: s3a://spark-emr-data/movielens/schema/ml_1m/combine_column_schema
+wide_combine_schema_path: s3://spark-emr-data/movielens/schema/ml_1m/wide_combine_column_schema
 
 model_in_path: null
-model_out_path: s3a://sagemaker-us-west-2-452145973879/datasets/movielens/model/widedeep/model_out/ml_1m/
-model_export_path: s3a://sagemaker-us-west-2-452145973879/datasets/movielens/model/widedeep/model_export/ml_1m/
+model_out_path: s3a://spark-emr-data/movielens/output/widedeep/model_out/ml_1m/
+model_export_path: s3a://spark-emr-data/movielens/output/widedeep/model_export/ml_1m/
 model_version: '0.1'
 experiment_name: movie_lens_wdl_1m
 input_label_column_index: 0

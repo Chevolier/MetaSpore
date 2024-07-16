@@ -39,16 +39,17 @@ pip install metaspore
 支持 Python 的最低版本为 3.8。
 
 运行 MetaSpore 离线训练，还需要 PySpark 和 PyTorch。可以通过 `pip` 命令进行安装：
-```bash
-pip install pyspark
-pip install torch==1.11.0+cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html
-```
 这两个依赖没有作为 metaspore wheel 的默认依赖，这样方便用户选择需要的版本。
 
 Spark 官方打包的 PySpark，没有包含 hadoop-cloud 的 jar 包，无法访问 S3 等云存储。我们提供了一个打包好 S3 客户端的 [PySpark 安装包](https://ks3-cn-beijing.ksyuncs.com/dmetasoul-bucket/releases/spark/pyspark-3.1.2.265f9ad4ee-py2.py3-none-any.whl)，可以从这里下载后安装：
 ```bash
-pip install pyspark-3.1.2.265f9ad4ee-py2.py3-none-any.whl
+pip install https://ks3-cn-beijing.ksyuncs.com/dmetasoul-bucket/releases/spark/pyspark-3.1.2.265f9ad4ee-py2.py3-none-any.whl
 ```
+
+```bash
+pip install torch==1.11.0+cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html
+```
+
 
 ## Step 2:  Recompile the new metaspore
 

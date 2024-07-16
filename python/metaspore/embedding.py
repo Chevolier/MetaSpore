@@ -480,14 +480,6 @@ class EmbeddingOperator(torch.nn.Module):
         batch = pa.RecordBatch.from_pandas(minibatch_value)
         indices, offsets = self._feature_extractor.extract(batch)
 
-        # print(f"minibatch_value: {type(minibatch_value)}, {minibatch_value}")
-        # print(f"minibatch_weight: {type(minibatch_weight)}, {minibatch_weight}")
-        # print(f"per_sample_weights: {type(per_sample_weights)}, {per_sample_weights.shape}, {per_sample_weights}")
-        # print(f"batch: {type(batch)}, {batch.to_pandas()}")
-        # print("self._feature_extractor results")
-        # print(f"indices: {type(indices)}, {indices.shape}, {indices}")
-        # print(f"offsets: {type(offsets)}, {offsets.shape}, {offsets}")
-
         if not feature_offset:
             offsets = offsets[::self.feature_count]
         return indices, offsets, per_sample_weights
@@ -526,16 +518,7 @@ class EmbeddingOperator(torch.nn.Module):
 
         per_sample_weights = self._per_sample_weights
         per_sample_weights_1d = torch.from_numpy(per_sample_weights.view(numpy.float32))
-
-        # print("self._compute_sum_concat results")
-        # print(f"feature count: {feature_count}")
-        # print(f"self._data: {type(self._data)}, {self._data.shape}, {self._data}")
-        # print(f"indices: {type(indices)}, {indices.shape}, {indices}")
-        # print(f"indices_1d: {type(indices_1d)}, {indices_1d.shape}, {indices_1d}")
-        # print(f"offsets: {type(offsets)}, {offsets.shape}, {offsets}")
-        # print(f"offsets_1d: {type(offsets_1d)}, {offsets_1d.shape}, {offsets_1d}")
-        # print(f"per_sample_weights_1d: {type(per_sample_weights_1d)}, {per_sample_weights_1d.shape}, {per_sample_weights_1d}")
-
+        
         # we use the forward method to replace the torch.nn.functional.embedding_bag
         out = self.sparse_embedding_bag.forward(indices_1d, self._data, offsets_1d, minibatch_size, per_sample_weights_1d)
 
