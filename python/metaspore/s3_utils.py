@@ -78,19 +78,19 @@ def get_s3_config():
     if config.aws_region:
         os.environ['AWS_REGION'] = config.aws_region
     else:
-        os.unsetenv('AWS_REGION')
+        os.pop('AWS_REGION', None)
     if config.aws_endpoint:
         os.environ['AWS_ENDPOINT'] = config.aws_endpoint
     else:
-        os.unsetenv('AWS_ENDPOINT')
+        os.pop('AWS_ENDPOINT', None)
     if config.aws_access_key_id:
         os.environ['AWS_ACCESS_KEY_ID'] = config.aws_access_key_id
     else:
-        os.unsetenv('AWS_ACCESS_KEY_ID')
+        os.pop('AWS_ACCESS_KEY_ID', None)
     if config.aws_secret_access_key:
         os.environ['AWS_SECRET_ACCESS_KEY'] = config.aws_secret_access_key
     else:
-        os.unsetenv('AWS_SECRET_ACCESS_KEY')
+        os.pop('AWS_SECRET_ACCESS_KEY', None)
     _cached_s3_config = config
     return config
 

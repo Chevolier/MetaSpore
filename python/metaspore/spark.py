@@ -99,7 +99,7 @@ class SessionBuilder(object):
             os.environ[name] = value
         else:
             value = ''
-            os.unsetenv(name)
+            os.pop(name, None)
         builder.config('spark.executorEnv.%s' % (name,), value)
         builder.config('spark.yarn.appMasterEnv.%s' % (name,), value)
 
