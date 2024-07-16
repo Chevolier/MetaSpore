@@ -21,13 +21,13 @@ sudo rpm -i amazon-corretto-11-x64-linux-jdk.rpm
 sudo alternatives --install /usr/bin/java java /usr/lib/jvm/java-11-amazon-corretto/bin/java 1
 sudo alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-11-amazon-corretto/bin/javac 1
 
-sudo alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
-sudo alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
+sudo alternatives --set java /usr/lib/jvm/java-11-amazon-corretto/bin/java
+sudo alternatives --set javac /usr/lib/jvm/java-11-amazon-corretto/bin/javac
 
 sudo mkdir -p /etc/alternatives/jre/bin
 sudo ln -s /usr/lib/jvm/java-11-amazon-corretto/bin/java /etc/alternatives/jre/bin/java
 
-echo 'export JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto.x86_64' >> ~/.bashrc
+echo 'export JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto' >> ~/.bashrc
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 
@@ -44,7 +44,9 @@ source ~/.bashrc   # or source ~/.bash_profile
 # sudo yum install git -y
 
 echo "Configure libstdc++.so.6"
-sudo cp /mnt/notebook-env/lib/libstdc++.so.6.0.30 /lib64/
+# sudo cp /mnt/notebook-env/lib/libstdc++.so.6.0.30 /lib64/
+
+aws s3 cp s3://spark-emr-data/wheels/libstdc++.so.6.0.30 /lib64/
 sudo rm /lib64/libstdc++.so.6
 sudo ln -s /lib64/libstdc++.so.6.0.30 /lib64/libstdc++.so.6
 
