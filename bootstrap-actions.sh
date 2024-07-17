@@ -44,8 +44,8 @@ sudo pip install awscli --ignore-installed six
 echo 'export PATH=/usr/local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 
-# sudo yum update -y
-# sudo yum install git -y
+sudo yum update -y
+sudo yum install git -y
 
 echo "Configure libstdc++.so.6"
 # sudo cp /mnt/notebook-env/lib/libstdc++.so.6.0.30 /lib64/
