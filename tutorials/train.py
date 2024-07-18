@@ -112,8 +112,8 @@ class GateEmbedding(nn.Module):
 def train(args):
     spark_confs = {
         'spark.eventLog.enabled':'true',
-        'spark.executor.memory': '30g',
-        'spark.driver.memory': '15g',
+        # 'spark.executor.memory': '30g',
+        # 'spark.driver.memory': '15g',
     }
     print(f"worker_count: {args.worker_count}, worker_cpu: {args.worker_cpu}")
 
