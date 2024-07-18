@@ -1,30 +1,33 @@
 import argparse
-import os
 import torch
 import torch.nn as nn
 import metaspore as ms
-from pyspark.sql import SparkSession
-
-# Define the model classes here...
+import pyspark
+from metaspore import _metaspore
+from metaspore.url_utils import is_url
+from metaspore.url_utils import use_s3
+from metaspore.file_utils import file_exists
 
 def nansum(x):
     return torch.where(torch.isnan(x), torch.zeros_like(x), x).sum()
 
+
 def log_loss(yhat, y):
-    return nansum(-(y * (yhat + 1e-12).log() + (1 - y) * (1 - yhat + 1e-12).log()))
+    return nansum(-(y * (yhat + 1e-12).log() + (1 - y) *
+                    (1 - yhat + 1e-12).log()))
 
 # 自定义的主函数入口
 class DNNModelMain(nn.Module):
-    def __init__(self, ): # feature_config_file
+    def __init__(self, schema_path): # feature_config_file
         super().__init__()
         self._embedding_size = 16
-        self._schema_dir = ROOT_DIR + '/schema/'
-        self._column_name_path = self._schema_dir + 'column_name_mobivista.txt'
-        self._combine_schema_path = self._schema_dir + 'combine_schema_mobivista.txt'
+        # self._schema_dir = schema_dir # root_dir + '/schema/'
+        # self._column_name_path = self._schema_dir + 'column_name_mobivista.txt'
+        self._combine_schema_path = schema_path # self._schema_dir + 'combine_schema_mobivista.txt'
         # self.feature_config_file = feature_config_file  # TODO not used
         self._sparse = ms.EmbeddingSumConcat(
             self._embedding_size,
-            combine_schema_source=self._column_name_path,
+            # combine_schema_source=self._column_name_path,
             combine_schema_file_path=self._combine_schema_path,
             # enable_feature_gen=True,
             # feature_config_file=feature_config_file,
@@ -57,17 +60,12 @@ class DNNModelMain(nn.Module):
     def forward(self, x):
         emb = self._sparse(x)
         bno = self._bn(emb)
-        
-        # print(f"self._sparse._data.type: {type(self._sparse._data)}, self._sparse._data.shape: {self._sparse._data.shape}") 
-        # print(f"x.type: {type(x)}, x.shape: {x.shape}, x: {x}")
-        # print(f"emb.type: {type(emb)}, emb.shape: {emb.shape}, ") # emb: {emb}
-        # print(f"bno.type: {type(bno)}, bno.shape: {bno.shape}, ")  # bno: {bno}
-        
         d = self._gateEmbedding(bno)
         o = self._h1(d)
         r, s1, s2, s3 = self._h2(o, self._zero, self._zero, self._zero)
         r, s1, s2, s3 = self._h3(r, s1, s2, s3)
         return self.act0(self._h4(r))
+
 
 class FourChannelHidden(nn.Module):
     def __init__(self, in_size, out_size):
@@ -109,73 +107,100 @@ class GateEmbedding(nn.Module):
         gate_reshape = torch.reshape(gate, (-1, self.out_size, 1))
         input_reshape = torch.reshape(input, (-1, self.out_size, self.emb_size))
         return (gate_reshape * input_reshape).reshape(-1, self.out_size * self.emb_size)
+    
 
 def train(args):
-    ROOT_DIR = args.root_dir
-    
-    # Initialize Spark session
-    spark_conf = {
-        'spark.eventLog.enabled': 'true',
-        'spark.executor.memory': '20g',
-        'spark.driver.memory': '10g',
+    spark_confs = {
+        'spark.eventLog.enabled':'true',
+        'spark.executor.memory': '30g',
+        'spark.driver.memory': '15g',
     }
-    
-    spark = SparkSession.builder \
-        .appName("SageMaker Training") \
-        .config(conf=spark_conf) \
-        .getOrCreate()
-    
-    # Define the model here...
-    module = DNNModelMain()
-    
-    estimator = ms.PyTorchEstimator(
-        module=module,
-        worker_count=args.worker_count,
-        server_count=args.server_count,
-        model_out_path=args.model_out_path,
-        experiment_name=args.experiment_name,
-        input_label_column_name='label',
-        training_epoches=args.training_epochs,
-        shuffle_training_dataset=True
-    )
-    
-    # Read column names
-    column_names = []
-    with open(args.column_name_path, 'r') as f:
-        for line in f:
-            column_names.append(line.split(' ')[1].strip())
-    
-    # Prepare dataset paths
-    file_base_path = args.file_base_path
-    num_files = args.num_files
-    file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(num_files)]
-    train_dataset_path = [file_base_path + file_name for file_name in file_names]
-    
-    train_dataset = ms.input.read_s3_csv(
-        spark,
-        train_dataset_path,
-        format='orc',
-        shuffle=False,
-        delimiter='\t',
-        multivalue_delimiter="\001",
-        column_names=column_names,
-        multivalue_column_names=column_names[:-1]
-    )
-    
-    model = estimator.fit(train_dataset)
-    
+    print(f"worker_count: {args.worker_count}, worker_cpu: {args.worker_cpu}")
+
+    spark_session = ms.spark.get_session(local=args.local,
+                                        batch_size=args.batch_size,
+                                        worker_count=args.worker_count,
+                                        server_count=args.server_count,
+                                        worker_cpu=args.worker_cpu,
+                                        server_cpu=args.server_cpu,
+                                        log_level='WARN',
+                                        spark_confs=spark_confs)
+
+    with spark_session:
+        module = DNNModelMain(args.combine_schema_path)
+
+        estimator = ms.PyTorchEstimator(module=module,
+                                        worker_count=args.worker_count,
+                                        server_count=args.server_count,
+                                        model_out_path=args.model_out_path,
+                                        experiment_name='0.1',
+                                        input_label_column_name='label',
+                                        training_epoches=args.training_epochs,
+                                        shuffle_training_dataset=False)
+
+        column_name_path = use_s3(args.column_name_path)
+        if not file_exists(column_name_path):
+            raise RuntimeError(f"combine schema file {column_name_path!r} not found")
+        column_names = _metaspore.stream_read_all(column_name_path)
+        column_names = [column.split(' ')[1].strip() for column in column_names.decode('utf-8').split('\n') if column.strip()]
+        print(f"column_names: {column_names}")
+        
+        file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
+        train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
+
+        train_dataset = ms.input.read_s3_csv(spark_session, 
+                                            train_dataset_path, 
+                                            format='orc',
+                                            shuffle=False,
+                                            delimiter='\t', 
+                                            multivalue_delimiter="\001", 
+                                            column_names=column_names,
+                                            multivalue_column_names=column_names[:-1])
+
+        print(f"Number of training samples: {train_dataset.count()}")
+        print("Start training ...")
+
+        model = estimator.fit(train_dataset)
+
+        print("Finished training!")
+        print("Start testing ...")
+
+        test_dataset = ms.input.read_s3_csv(spark_session, 
+                                            args.test_dataset_path, 
+                                            format='orc',
+                                            delimiter='\t', 
+                                            multivalue_delimiter="\001", 
+                                            column_names=column_names,
+                                            multivalue_column_names=column_names[:-1])
+        
+        result = model.transform(test_dataset)
+        result_pd = result.toPandas()
+        print(f"Negative sample results: {result_pd[result_pd['label']==0].head()}")
+        print(f"Positive sample results: {result_pd[result_pd['label']==1].head()}")
+        
+        evaluator = pyspark.ml.evaluation.BinaryClassificationEvaluator()
+        test_auc = evaluator.evaluate(result)
+        print('test_auc: %g' % test_auc)
+        print("Finished testing!")
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--root-dir', type=str, default='s3://mv-mtg-di-for-poc-datalab')
     parser.add_argument('--column-name-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/schema/column_name_mobivista.txt')
     parser.add_argument('--combine-schema-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/schema/combine_schema_mobivista.txt')
     parser.add_argument('--file-base-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/14/00/')
-    parser.add_argument('--num-files', type=int, default=100)
-    parser.add_argument('--worker-count', type=int, default=100)
-    parser.add_argument('--server-count', type=int, default=200)
-    parser.add_argument('--model-out-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/output/dev/model_out/')
+    parser.add_argument('--test-dataset-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/15/00/part-00000-f79b9ee6-aaf5-4117-88d5-44eea69dcea3-c000.snappy.orc')    
+    parser.add_argument('--model-out-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/output/dev/model_out/')    
+    parser.add_argument('--num-files', type=int, default=10)
+    parser.add_argument('--batch-size', type=int, default=100)
+    parser.add_argument('--worker-count', type=int, default=1)
+    parser.add_argument('--server-count', type=int, default=1)
+    parser.add_argument('--worker-cpu', type=int, default=1)
+    parser.add_argument('--server-cpu', type=int, default=1)
     parser.add_argument('--experiment-name', type=str, default='0.1')
     parser.add_argument('--training-epochs', type=int, default=1)
-    
+    parser.add_argument('--local', action='store_true')  # Use store_true for the local parameter
+
     args = parser.parse_args()
+
     train(args)
