@@ -156,8 +156,8 @@ def train(args):
                                             column_names=column_names,
                                             multivalue_column_names=column_names[:-1])
 
-        print(f"Number of training samples: {train_dataset.count()}")
-        print("Start training ...")
+        # print(f"Number of training samples: {train_dataset.count()}")
+        # print("Start training ...")
 
         model = estimator.fit(train_dataset)
 
