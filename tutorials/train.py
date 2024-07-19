@@ -112,6 +112,7 @@ class GateEmbedding(nn.Module):
 def train(args):
     spark_confs = {
         'spark.eventLog.enabled':'true',
+        "spark.sql.files.ignoreCorruptFiles": "true"
         # 'spark.executor.memory': '30g',
         # 'spark.driver.memory': '15g',
     }
