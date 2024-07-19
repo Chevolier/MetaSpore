@@ -114,6 +114,7 @@ def train(args):
         'spark.eventLog.enabled':'true',
         # 'spark.executor.memory': '30g',
         # 'spark.driver.memory': '15g',
+        "spark.sql.files.ignoreCorruptFiles": "true"
     }
 
     spark_session = ms.spark.get_session(local=args.local,
@@ -156,8 +157,8 @@ def train(args):
                                             column_names=column_names,
                                             multivalue_column_names=column_names[:-1])
 
-        print(f"Number of training samples: {train_dataset.count()}")
-        print("Start training ...")
+        # print(f"Number of training samples: {train_dataset.count()}")
+        # print("Start training ...")
 
         model = estimator.fit(train_dataset)
 
