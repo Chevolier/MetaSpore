@@ -115,7 +115,6 @@ def train(args):
         # 'spark.executor.memory': '30g',
         # 'spark.driver.memory': '15g',
     }
-    print(f"worker_count: {args.worker_count}, worker_cpu: {args.worker_cpu}")
 
     spark_session = ms.spark.get_session(local=args.local,
                                         batch_size=args.batch_size,
