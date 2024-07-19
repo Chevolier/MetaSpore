@@ -115,7 +115,6 @@ def train(args):
         "spark.sql.files.ignoreCorruptFiles": "true"
         # 'spark.executor.memory': '30g',
         # 'spark.driver.memory': '15g',
-        "spark.sql.files.ignoreCorruptFiles": "true"
     }
 
     spark_session = ms.spark.get_session(local=args.local,
