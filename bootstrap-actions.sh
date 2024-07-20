@@ -14,7 +14,7 @@ sudo update-alternatives --set java /usr/lib/jvm/java-11-amazon-corretto.x86_64/
 sudo update-alternatives --set javac /usr/lib/jvm/java-11-amazon-corretto.x86_64/bin/javac
 
 # sudo mkdir -p /etc/alternatives/jre/bin
-# sudo ln -s /usr/lib/jvm/java-11-amazon-corretto/bin/java /etc/alternatives/jre/bin/java
+# sudo ln -s /usr/lib/jvm/java-11-amazon-corretto.x86_64/bin/java /etc/alternatives/jre/bin/java
 
 echo 'export JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto.x86_64' >> ~/.bashrc
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
@@ -41,8 +41,8 @@ mkdir -p /tmp/spark-events
 # echo 'export SPARK_HOME=/usr/lib/spark' >> ~/.bashrc
 # source ~/.bashrc
 
-echo 'export HADOOP_CONF_DIR=/etc/hadoop/conf' >> ~/.bashrc
-source ~/.bashrc
+# echo 'export HADOOP_CONF_DIR=/etc/hadoop/conf' >> ~/.bashrc
+# source ~/.bashrc
 
 # aws s3 cp s3://spark-emr-data/jars/spark-3.1.2-bin-hadoop3.2.tgz ~/
 # tar zxvf ~/spark-3.1.2-bin-hadoop3.2.tgz -C ~/
