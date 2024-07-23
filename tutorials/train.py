@@ -151,8 +151,10 @@ def train(args):
         column_names = [column.split(' ')[1].strip() for column in column_names.decode('utf-8').split('\n') if column.strip()]
         print(f"column_names: {column_names}")
         
-        file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
-        train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
+        # file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
+        # train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
+
+        train_dataset_path = [args.file_base_path + f"/{i:02d}/" for i in range(args.num_files)]
 
         train_dataset = ms.input.read_s3_csv(spark_session, 
                                             train_dataset_path, 
@@ -201,7 +203,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--column-name-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/schema/column_name_mobivista.txt')
     parser.add_argument('--combine-schema-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/schema/combine_schema_mobivista.txt')
-    parser.add_argument('--file-base-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/14/00/')
+    parser.add_argument('--file-base-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/14/')
     parser.add_argument('--test-dataset-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/15/00/part-00000-f79b9ee6-aaf5-4117-88d5-44eea69dcea3-c000.snappy.orc')    
     parser.add_argument('--model-out-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/output/dev/model_out/')    
     parser.add_argument('--num-files', type=int, default=10)
