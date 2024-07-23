@@ -114,9 +114,10 @@ def train(args):
     spark_confs = {
         'spark.eventLog.enabled':'true',
         "spark.sql.files.ignoreCorruptFiles": "true",
-        'spark.sql.execution.arrow.pyspark.enabled': "true"
+        'spark.sql.execution.arrow.pyspark.enabled': "true",
         # 'spark.executor.memory': '30g',
         # 'spark.driver.memory': '15g',
+        'spark.memory.fraction': args.spark_memory_fraction
     }
 
     spark_session = ms.spark.get_session(local=args.local,
@@ -172,20 +173,8 @@ def train(args):
         time_cost_train = end_time_train - start_time
 
         print(f"Finished training, time cost: {time_cost_train} s.")
-        print("Start testing ...")
 
-        spark_session_test = ms.spark.get_session(local=args.local,
-                                    batch_size=100,
-                                    worker_count=1,
-                                    server_count=1,
-                                    worker_cpu=1,
-                                    server_cpu=1,
-                                    worker_memory='5G',
-                                    server_memory='5G',
-                                    coordinator_memory='5G',
-                                    log_level='WARN',
-                                    spark_confs=spark_confs)
-        
+        print("Start testing ...")
         test_dataset = ms.input.read_s3_csv(spark_session, 
                                             args.test_dataset_path, 
                                             format='orc',
@@ -223,7 +212,8 @@ if __name__ == '__main__':
     parser.add_argument('--server-cpu', type=int, default=1)
     parser.add_argument('--worker-memory', type=str, default='5G')
     parser.add_argument('--server-memory', type=str, default='5G')    
-    parser.add_argument('--coordinator-memory', type=str, default='5G')        
+    parser.add_argument('--coordinator-memory', type=str, default='5G') 
+    parser.add_argument('--spark-memory-fraction', type=str, default='0.6')       
     parser.add_argument('--experiment-name', type=str, default='0.1')
     parser.add_argument('--training-epochs', type=int, default=1)
     parser.add_argument('--local', action='store_true')  # Use store_true for the local parameter
