@@ -123,6 +123,9 @@ def train(args):
                                         server_count=args.server_count,
                                         worker_cpu=args.worker_cpu,
                                         server_cpu=args.server_cpu,
+                                        worker_memory=args.worker_memory,
+                                        server_memory=args.server_memory,
+                                        coordinator_memory=args.coordinator_memory,
                                         log_level='WARN',
                                         spark_confs=spark_confs)
 
@@ -197,6 +200,9 @@ if __name__ == '__main__':
     parser.add_argument('--server-count', type=int, default=1)
     parser.add_argument('--worker-cpu', type=int, default=1)
     parser.add_argument('--server-cpu', type=int, default=1)
+    parser.add_argument('--worker-memory', type=str, default='5G')
+    parser.add_argument('--server-memory', type=str, default='5G')    
+    parser.add_argument('--coordinator-memory', type=str, default='5G')        
     parser.add_argument('--experiment-name', type=str, default='0.1')
     parser.add_argument('--training-epochs', type=int, default=1)
     parser.add_argument('--local', action='store_true')  # Use store_true for the local parameter
