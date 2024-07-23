@@ -7,6 +7,7 @@ from metaspore import _metaspore
 from metaspore.url_utils import is_url
 from metaspore.url_utils import use_s3
 from metaspore.file_utils import file_exists
+import time
 
 def nansum(x):
     return torch.where(torch.isnan(x), torch.zeros_like(x), x).sum()
@@ -112,7 +113,8 @@ class GateEmbedding(nn.Module):
 def train(args):
     spark_confs = {
         'spark.eventLog.enabled':'true',
-        "spark.sql.files.ignoreCorruptFiles": "true"
+        "spark.sql.files.ignoreCorruptFiles": "true",
+        'spark.sql.execution.arrow.pyspark.enabled': "true"
         # 'spark.executor.memory': '30g',
         # 'spark.driver.memory': '15g',
     }
@@ -161,13 +163,29 @@ def train(args):
                                             multivalue_column_names=column_names[:-1])
 
         # print(f"Number of training samples: {train_dataset.count()}")
-        # print("Start training ...")
+        print("Start training ...")
+        start_time = time.time()
 
         model = estimator.fit(train_dataset)
 
-        print("Finished training!")
+        end_time_train = time.time()
+        time_cost_train = end_time_train - start_time
+
+        print(f"Finished training, time cost: {time_cost_train} s.")
         print("Start testing ...")
 
+        spark_session_test = ms.spark.get_session(local=args.local,
+                                    batch_size=100,
+                                    worker_count=1,
+                                    server_count=1,
+                                    worker_cpu=1,
+                                    server_cpu=1,
+                                    worker_memory='5G',
+                                    server_memory='5G',
+                                    coordinator_memory='5G',
+                                    log_level='WARN',
+                                    spark_confs=spark_confs)
+        
         test_dataset = ms.input.read_s3_csv(spark_session, 
                                             args.test_dataset_path, 
                                             format='orc',
@@ -183,8 +201,11 @@ def train(args):
         
         evaluator = pyspark.ml.evaluation.BinaryClassificationEvaluator()
         test_auc = evaluator.evaluate(result)
+
+        end_time_test = time.time()
+        time_cost_test = end_time_test - end_time_train
         print('test_auc: %g' % test_auc)
-        print("Finished testing!")
+        print(f"Finished testing, time cost: {time_cost_test} s.")
 
 
 if __name__ == '__main__':
