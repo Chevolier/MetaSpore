@@ -165,7 +165,7 @@ def train(args):
                                             column_names=column_names,
                                             multivalue_column_names=column_names[:-1])
 
-        # print(f"Number of training samples: {train_dataset.count()}")
+        # print(f"Number of training samples: {train_dataset.count()}")708
         print("Start training ...")
         start_time = time.time()
 
@@ -176,27 +176,27 @@ def train(args):
 
         print(f"Finished training, time cost: {time_cost_train} s.")
 
-        print("Start testing ...")
-        test_dataset = ms.input.read_s3_csv(spark_session, 
-                                            args.test_dataset_path, 
-                                            format='orc',
-                                            delimiter='\t', 
-                                            multivalue_delimiter="\001", 
-                                            column_names=column_names,
-                                            multivalue_column_names=column_names[:-1])
+        # print("Start testing ...")
+        # test_dataset = ms.input.read_s3_csv(spark_session, 
+        #                                     args.test_dataset_path, 
+        #                                     format='orc',
+        #                                     delimiter='\t', 
+        #                                     multivalue_delimiter="\001", 
+        #                                     column_names=column_names,
+        #                                     multivalue_column_names=column_names[:-1])
         
-        result = model.transform(test_dataset)
-        # result_pd = result.toPandas()
-        # print(f"Negative sample results: {result_pd[result_pd['label']==0].head()}")
-        # print(f"Positive sample results: {result_pd[result_pd['label']==1].head()}")
+        # result = model.transform(test_dataset)
+        # # result_pd = result.toPandas()
+        # # print(f"Negative sample results: {result_pd[result_pd['label']==0].head()}")
+        # # print(f"Positive sample results: {result_pd[result_pd['label']==1].head()}")
         
-        evaluator = pyspark.ml.evaluation.BinaryClassificationEvaluator()
-        test_auc = evaluator.evaluate(result)
+        # evaluator = pyspark.ml.evaluation.BinaryClassificationEvaluator()
+        # test_auc = evaluator.evaluate(result)
 
-        end_time_test = time.time()
-        time_cost_test = end_time_test - end_time_train
-        print('test_auc: %g' % test_auc)
-        print(f"Finished testing, time cost: {time_cost_test} s.")
+        # end_time_test = time.time()
+        # time_cost_test = end_time_test - end_time_train
+        # print('test_auc: %g' % test_auc)
+        # print(f"Finished testing, time cost: {time_cost_test} s.")
 
 
 if __name__ == '__main__':
