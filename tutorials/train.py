@@ -186,9 +186,9 @@ def train(args):
                                             multivalue_column_names=column_names[:-1])
         
         result = model.transform(test_dataset)
-        result_pd = result.toPandas()
-        print(f"Negative sample results: {result_pd[result_pd['label']==0].head()}")
-        print(f"Positive sample results: {result_pd[result_pd['label']==1].head()}")
+        # result_pd = result.toPandas()
+        # print(f"Negative sample results: {result_pd[result_pd['label']==0].head()}")
+        # print(f"Positive sample results: {result_pd[result_pd['label']==1].head()}")
         
         evaluator = pyspark.ml.evaluation.BinaryClassificationEvaluator()
         test_auc = evaluator.evaluate(result)
