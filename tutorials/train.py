@@ -152,7 +152,7 @@ def train(args):
                                         experiment_name='0.1',
                                         input_label_column_name='label',
                                         training_epoches=args.training_epochs,
-                                        shuffle_training_dataset=False)
+                                        shuffle_training_dataset=args.shuffle_training_dataset)
 
         column_name_path = use_s3(args.column_name_path)
         if not file_exists(column_name_path):
