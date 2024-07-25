@@ -142,7 +142,7 @@ def train(args):
                                         experiment_name='0.1',
                                         input_label_column_name='label',
                                         training_epoches=args.training_epochs,
-                                        shuffle_training_dataset=False)
+                                        shuffle_training_dataset=args.shuffle)
 
         column_name_path = use_s3(args.column_name_path)
         if not file_exists(column_name_path):
@@ -159,7 +159,7 @@ def train(args):
         train_dataset = ms.input.read_s3_csv(spark_session, 
                                             train_dataset_path, 
                                             format='orc',
-                                            shuffle=False,
+                                            shuffle=args.shuffle,
                                             delimiter='\t', 
                                             multivalue_delimiter="\001", 
                                             column_names=column_names,
@@ -218,6 +218,7 @@ if __name__ == '__main__':
     parser.add_argument('--spark-memory-fraction', type=str, default='0.6')       
     parser.add_argument('--experiment-name', type=str, default='0.1')
     parser.add_argument('--training-epochs', type=int, default=1)
+    parser.add_argument('--shuffle', action='store_true')  # whether to shuffle dataset
     parser.add_argument('--local', action='store_true')  # Use store_true for the local parameter
 
     args = parser.parse_args()
