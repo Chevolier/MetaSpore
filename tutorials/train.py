@@ -9,6 +9,16 @@ from metaspore.url_utils import use_s3
 from metaspore.file_utils import file_exists
 import time
 
+def str_to_bool(value):
+    """Convert a string to a boolean."""
+    if value.lower() in ('true', '1', 'yes', 'y'):
+        return True
+    elif value.lower() in ('false', '0', 'no', 'n'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError(f"Boolean value expected. Got {value}")
+
+
 def nansum(x):
     return torch.where(torch.isnan(x), torch.zeros_like(x), x).sum()
 
@@ -218,7 +228,10 @@ if __name__ == '__main__':
     parser.add_argument('--spark-memory-fraction', type=str, default='0.6')       
     parser.add_argument('--experiment-name', type=str, default='0.1')
     parser.add_argument('--training-epochs', type=int, default=1)
-    parser.add_argument('--shuffle', action='store_true')  # whether to shuffle dataset
+    parser.add_argument('--shuffle', type=str_to_bool, default=False,
+                    help="Whether to shuffle the dataset. Use 'true' or 'false'.")
+    parser.add_argument('--shuffle-training-dataset', type=str_to_bool, default=False,
+                    help="Whether to shuffle the dataset. Use 'true' or 'false'.")
     parser.add_argument('--local', action='store_true')  # Use store_true for the local parameter
 
     args = parser.parse_args()
