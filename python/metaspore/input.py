@@ -31,26 +31,22 @@ def read_s3_csv(spark_session, url, format='csv', shuffle=False, num_workers=1,
     from .schema_utils import make_csv_transformer
     schema = make_csv_schema(schema, column_names, multivalue_column_names)
     input_schema, df_transformer = make_csv_transformer(schema, multivalue_delimiter)
+
+    # allow for local storage and HDFS read
     if isinstance(url, str):
-        df = (spark_session
-                .read
-                .format(format)
-                .option("header", str(bool(header)).lower())
-                .option("nullable", str(bool(nullable)).lower())
-                .option("delimiter", delimiter)
-                .option("encoding", encoding)
-                .schema(input_schema)
-                .load(use_s3a(url)))
+        data_path = use_s3a(url)
     elif isinstance(url, list):
-        df = (spark_session
-                .read
-                .format(format)
-                .option("header", str(bool(header)).lower())
-                .option("nullable", str(bool(nullable)).lower())
-                .option("delimiter", delimiter)
-                .option("encoding", encoding)
-                .schema(input_schema)
-                .load([use_s3a(url1) for url1 in url]))
+        data_path = [use_s3a(url1) for url1 in url]
+
+    df = (spark_session
+            .read
+            .format(format)
+            .option("header", str(bool(header)).lower())
+            .option("nullable", str(bool(nullable)).lower())
+            .option("delimiter", delimiter)
+            .option("encoding", encoding)
+            .schema(input_schema)
+            .load(data_path))
         
     df = df_transformer(df)
     if shuffle and num_workers > 1:

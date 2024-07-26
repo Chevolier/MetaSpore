@@ -84,7 +84,7 @@ cd ~/.vcpkg/triplets
 # create a ~/.vcpkg/triplets/x64-linux-custom.cmake with the following contents
 # This is the issue which leads to undefined symbol or unreferenced symbol during link, D_GLIBCXX_USE_CXX11_ABI=0 should be used for all packages installed using vcpkg, since CMakeFiles.txt also used this.
 
-cat <<EOF > ~/.vcpkg/triplets/x64-linux-custom2.cmake
+cat <<EOF > ~/.vcpkg/triplets/x64-linux-custom.cmake
 set(VCPKG_TARGET_ARCHITECTURE x64)
 set(VCPKG_CRT_LINKAGE dynamic)
 set(VCPKG_LIBRARY_LINKAGE static)
