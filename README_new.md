@@ -96,6 +96,10 @@ EOF
 git clone https://github.com/meta-soul/MetaSpore.git
 cd MetaSpore
 
+# Download MNIST dataset from s3
+mkdir cpp/tests/data/MNIST
+aws s3 sync s3://sagemaker-us-west-2-452145973879/datasets/MNIST/ cpp/tests/data/MNIST
+
 mkdir build && cd build
 cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=~/.vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-custom -DBUILD_TRAIN_PKG=ON -DBUILD_SERVING_BIN=ON -DENABLE_TESTS=ON
 
