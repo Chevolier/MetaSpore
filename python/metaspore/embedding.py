@@ -472,15 +472,32 @@ class EmbeddingOperator(torch.nn.Module):
     @torch.jit.unused
     def _combine_to_indices_and_offsets(self, minibatch, feature_offset):
         import pyarrow as pa
-        minibatch_value, minibatch_weight = split_value_weight(minibatch)
-        flat_weights = [weight for sublist in minibatch_weight.values.flatten() for weight in sublist]
-        per_sample_weights = np.array(flat_weights, dtype=np.float32)
+
+        ## Test using online processing of weights
+        # minibatch_value, minibatch_weight = split_value_weight(minibatch)
+        # flat_weights = [weight for sublist in minibatch_weight.values.flatten() for weight in sublist]
+        # per_sample_weights = np.array(flat_weights, dtype=np.float32)
+
+        value_columns = []
+        weight_columns = []
+        for column in minibatch.columns:
+            if column == 'label':
+                continue
+
+            if 'weight' in column:
+                weight_columns.append(column)
+            else:
+                value_columns.append(column)        
+
+        minibatch_value = minibatch[value_columns]
+        per_sample_weights = np.hstack(minibatch[weight_columns].to_numpy().ravel())
 
         # do feature extraction using only minibatch_value
         batch = pa.RecordBatch.from_pandas(minibatch_value)
 
-        # batch = pa.RecordBatch.from_pandas(minibatch)
+        ## Test using all 1s weights
         # per_sample_weights = np.ones_like(indices, dtype=np.float32)
+        # batch = pa.RecordBatch.from_pandas(minibatch)
 
         indices, offsets = self._feature_extractor.extract(batch)
 
