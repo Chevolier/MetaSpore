@@ -42,7 +42,7 @@ def split_value_weight(minibatch):
     for column in minibatch.columns:
         if column == 'label':
             continue
-        values_dict[f'{column}_value'] = []
+        values_dict[f'{column}'] = []
         weights_dict[f'{column}_weight'] = []
         for items in minibatch[column]:
             try:
@@ -128,8 +128,8 @@ def main(args):
         print(f"Number of orcs: {args.num_files}, total number of rows: {train_dataset.count()}")
         print(f"Number of partitions: {num_partitions}")
         
-        train_dataset.printSchema()
-        train_dataset.show(5)
+        # train_dataset.printSchema()
+        # train_dataset.show(5)
 
         start_time = time.time()
 
@@ -140,8 +140,8 @@ def main(args):
         num_partitions = args.num_files  # Set to 1 to ensure a single file or adjust based on your data size
         processed_df_repartitioned = processed_df.repartition(num_partitions)
 
-        processed_df_repartitioned.printSchema()
-        processed_df_repartitioned.show(5)
+        # processed_df_repartitioned.printSchema()
+        # processed_df_repartitioned.show(5)
 
         print(f"Total number of processed rows: {processed_df_repartitioned.count()}")
         print(f"Total number of processed partitions: {processed_df_repartitioned.rdd.getNumPartitions()}")
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     parser.add_argument('--combine-schema-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/schema/combine_schema_mobivista.txt')
     parser.add_argument('--file-base-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/14/00/')
     parser.add_argument('--test-dataset-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/15/00/part-00000-f79b9ee6-aaf5-4117-88d5-44eea69dcea3-c000.snappy.orc')    
-    parser.add_argument('--output-dir', type=str, default='~/data/processed_orc')    
+    parser.add_argument('--output-dir', type=str, default='/home/ubuntu/data/processed_orcs')    
     parser.add_argument('--output-format', type=str, default='orc')    
     parser.add_argument('--num-files', type=int, default=1)
     parser.add_argument('--batch-size', type=int, default=100)
