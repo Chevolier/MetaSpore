@@ -26,7 +26,8 @@ def main(args):
             "spark.sql.files.ignoreCorruptFiles": "true",
             # 'spark.executor.memory': '30g',
             # 'spark.driver.memory': '15g',
-            'spark.memory.fraction': args.spark_memory_fraction
+            'spark.memory.fraction': args.spark_memory_fraction,
+            # 'spark.sql.files.maxPartitionBytes': '256MB'
         }
 
     spark_session = ms.spark.get_session(local=args.local,
@@ -161,3 +162,5 @@ if __name__ == '__main__':
     parser.add_argument('--local', action='store_true')  # Use store_true for the local parameter
 
     args = parser.parse_args()
+
+    main(args)
