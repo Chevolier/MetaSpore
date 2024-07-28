@@ -61,7 +61,7 @@ def split_value_weight(minibatch):
     minibatch_value = pd.DataFrame(values_dict)
     minibatch_weight = pd.DataFrame(weights_dict)
 
-    return pd.concat([minibatch_value, minibatch_weight], axis=1)
+    return pd.concat([minibatch_value, minibatch_weight, minibatch[['label']]], axis=1)
 
 
 def process_minibatch(iterator):
@@ -75,6 +75,8 @@ def generate_output_schema(columns):
             continue
         schema_fields.append(StructField(f'{column}', ArrayType(StringType()), True))
         schema_fields.append(StructField(f'{column}_weight', ArrayType(FloatType()), True))
+
+    schema_fields.append(StructField(f'{column}', StringType(), True))
     return StructType(schema_fields)
 
 def main(args):
@@ -165,7 +167,7 @@ if __name__ == '__main__':
     parser.add_argument('--combine-schema-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/schema/combine_schema_mobivista.txt')
     parser.add_argument('--file-base-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/14/00/')
     parser.add_argument('--test-dataset-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/15/00/part-00000-f79b9ee6-aaf5-4117-88d5-44eea69dcea3-c000.snappy.orc')    
-    parser.add_argument('--output-dir', type=str, default='/home/ubuntu/data/processed_orcs')    
+    parser.add_argument('--output-dir', type=str, default='/home/ubuntu/data/processed/orcs/')    
     parser.add_argument('--output-format', type=str, default='orc')    
     parser.add_argument('--num-files', type=int, default=1)
     parser.add_argument('--batch-size', type=int, default=100)
