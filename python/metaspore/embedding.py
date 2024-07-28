@@ -472,17 +472,17 @@ class EmbeddingOperator(torch.nn.Module):
     @torch.jit.unused
     def _combine_to_indices_and_offsets(self, minibatch, feature_offset):
         import pyarrow as pa
-        # minibatch_value, minibatch_weight = split_value_weight(minibatch)
-        # flat_weights = [weight for sublist in minibatch_weight.values.flatten() for weight in sublist]
-        # per_sample_weights = np.array(flat_weights, dtype=np.float32)
+        minibatch_value, minibatch_weight = split_value_weight(minibatch)
+        flat_weights = [weight for sublist in minibatch_weight.values.flatten() for weight in sublist]
+        per_sample_weights = np.array(flat_weights, dtype=np.float32)
 
-        # # do feature extraction using only minibatch_value
-        # batch = pa.RecordBatch.from_pandas(minibatch_value)
+        # do feature extraction using only minibatch_value
+        batch = pa.RecordBatch.from_pandas(minibatch_value)
 
-        batch = pa.RecordBatch.from_pandas(minibatch)
+        # batch = pa.RecordBatch.from_pandas(minibatch)
+        # per_sample_weights = np.ones_like(indices, dtype=np.float32)
+
         indices, offsets = self._feature_extractor.extract(batch)
-
-        per_sample_weights = np.ones_like(indices, dtype=np.float32)
 
         if not feature_offset:
             offsets = offsets[::self.feature_count]

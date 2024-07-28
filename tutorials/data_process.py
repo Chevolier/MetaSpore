@@ -76,7 +76,7 @@ def generate_output_schema(columns):
         schema_fields.append(StructField(f'{column}', ArrayType(StringType()), True))
         schema_fields.append(StructField(f'{column}_weight', ArrayType(FloatType()), True))
 
-    schema_fields.append(StructField(f'{column}', StringType(), True))
+    schema_fields.append(StructField('label', StringType(), True))
     return StructType(schema_fields)
 
 def main(args):

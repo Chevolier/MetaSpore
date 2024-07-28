@@ -170,9 +170,9 @@ def train(args):
                                             format='orc',
                                             shuffle=args.shuffle,
                                             delimiter='\t', 
-                                            # multivalue_delimiter="\001", 
-                                            column_names=column_names, )
-                                            # multivalue_column_names=column_names[:-1])
+                                            multivalue_delimiter="\001", 
+                                            column_names=column_names,
+                                            multivalue_column_names=column_names[:-1])
 
         # print(f"Number of training samples: {train_dataset.count()}")708
         print("Start training ...")
