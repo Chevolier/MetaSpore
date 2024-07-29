@@ -10,6 +10,8 @@ from tqdm import tqdm
 import time
 import argparse
 import os
+import pandas as pd
+import numpy as np
 
 def str_to_bool(value):
     """Convert a string to a boolean."""
@@ -20,10 +22,8 @@ def str_to_bool(value):
     else:
         raise argparse.ArgumentTypeError(f"Boolean value expected. Got {value}")
 
-import pandas as pd
-import numpy as np
-
 def split_value_weight(minibatch):
+    start_time = time.time()
     def split(items):
         values = []
         weights = []
@@ -60,6 +60,10 @@ def split_value_weight(minibatch):
 
     minibatch_value = pd.DataFrame(values_dict)
     minibatch_weight = pd.DataFrame(weights_dict)
+
+    end_time = time.time()
+    split_duration = end_time - start_time
+    print(f"Type of minibatch: {type(minibatch)}, {minibatch.shape}, split duration: {split_duration:.3f} s.")
 
     return pd.concat([minibatch_value, minibatch_weight, minibatch[['label']]], axis=1)
 

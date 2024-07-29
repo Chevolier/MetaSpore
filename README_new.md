@@ -1,33 +1,6 @@
 
-# Run the demo/ctr/widedeep
-
-```bash
-
-export MY_S3_BUCKET='s3a://sagemaker-us-west-2-452145973879/datasets/'
-envsubst < fg.yaml > fg.yaml.dev 
-
-envsubst < match_dataset_cf.yaml > match_dataset.yaml.dev 
-nohup python match_dataset_cf.py --conf match_dataset.yaml.dev --verbose > log_match.out 2>&1 &
-
-
-envsubst < match_dataset_negsample_10.yaml > match_dataset_negsample_10.yaml.dev 
-nohup python match_dataset_negsample.py --conf match_dataset_negsample_10.yaml.dev --verbose > log_match_neg.out 2>&1 &
-
-envsubst < rank_dataset.yaml > rank.yaml.dev
-
-nohup python rank_dataset.py --conf rank.yaml.dev --verbose > log_rank.out 2>&1 &
-
-
-cd ctr/widedeep/conf
-envsubst < widedeep_ml_1m.yaml > widedeep_ml_1m.yaml.dev
-
-
-cd MetaSpore/demo/ctr/widedeep
-python widedeep.py --conf conf/widedeep_ml_1m.yaml.dev
-
-```
-
 # Recompile metaspore
+Suggest to use Ubuntu 20.04
 
 ## Step 1: Install the previous metaspore
 
@@ -49,7 +22,6 @@ pip install https://ks3-cn-beijing.ksyuncs.com/dmetasoul-bucket/releases/spark/p
 ```bash
 pip install torch==1.11.0+cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html
 ```
-
 
 ## Step 2:  Recompile the new metaspore
 
@@ -111,3 +83,53 @@ pip install metaspore-1.2.0-cp38-cp38-linux_x86_64.whl
 # Then use the following code to test
 python widedeep.py --conf conf/widedeep_ml_1m.yaml.dev
 ```
+
+# Start an EMR Cluster
+1. Change bootstrap-actions.sh, most importantly, change the required package s3 location when necessary.
+2. Upload the bootstrap-actions.sh to an S3 location.
+3. Follow the following configs to start EMR cluster, note to change core instance numbers, add bootstrap-actions.sh s3 location, you can create an Amazon EMR service role, EC2 instance profile for Amazon EMR in the first time, later can reuse: 
+
+![EMR Config Step 0](images/EMR-config-0.png)
+![EMR Config Step 1](images/EMR-config-1.png)
+![EMR Config Step 2](images/EMR-config-2.png)
+![EMR Config Step 3](images/EMR-config-3.png)
+![EMR Config Step 4](images/EMR-config-4.png)
+![EMR Config Step 5](images/EMR-config-5.png)
+![EMR Config Step 6](images/EMR-config-6.png)
+
+
+# Data Preprocessing
+
+Used to split value and weights in advance, change previous 1 feature column into 2 columns, for instance, _11001 -> _11001, _11001_weight, where _11001 is value, _11001_weight is weight, both are Array Type. 
+
+Option 1: In EMR console, add a step by setting:
+Type: Custom JAR
+Name: data_process
+JAR location: command-runner.jar
+Arguments: spark-submit --deploy-mode cluster --master yarn --driver-cores 1 /home/hadoop/data_process.py --worker-count 8 --server-count 4 --worker-cpu 1 --server-cpu 1 --worker-memory 6G --server-memory 6G --coordinator-memory 6G --num-files 100 --batch-size 1000 --spark-memory-fraction 0.1 --file-base-path hdfs:///user/hadoop/mv-mtg-di-for-poc-datalab/2024/06/14/00/ --output-format parquet --output-dir hdfs:///user/hadoop/data/parquets/2024/06/14/00/
+
+Option 2: Use the following command when you sshed into the master EC2 node.
+```bash
+spark-submit --deploy-mode cluster --master yarn --driver-cores 1 /home/hadoop/data_process.py --worker-count 8 --server-count 4 --worker-cpu 1 --server-cpu 1 --worker-memory 6G --server-memory 6G --coordinator-memory 6G --num-files 100 --batch-size 1000 --spark-memory-fraction 0.1 --file-base-path hdfs:///user/hadoop/mv-mtg-di-for-poc-datalab/2024/06/14/00/ --output-format parquet --output-dir hdfs:///user/hadoop/data/parquets/2024/06/14/00/
+```
+
+You need to change the arguments, like file-base-path, output-format, output-dir, based on needs.
+
+# Start Training
+
+Still, have two options, add step in EMR console or ssh into master EC2 instance and submit task.
+
+Option 1: In EMR console, add a step by setting:
+Type: Custom JAR
+Name: training
+JAR location: command-runner.jar
+Arguments: spark-submit --deploy-mode cluster --master yarn --driver-cores 1 /home/hadoop/train.py --worker-count 8 --server-count 4 --worker-cpu 1 --server-cpu 1 --worker-memory 6G --server-memory 6G --coordinator-memory 6G --num-files 200 --batch-size 1000 --spark-memory-fraction 0.1
+
+Option 2: Use the following command when you sshed into the master EC2 node.
+```bash
+spark-submit --deploy-mode cluster --master yarn --driver-cores 1 /home/hadoop/train.py --worker-count 8 --server-count 4 --worker-cpu 1 --server-cpu 1 --worker-memory 6G --server-memory 6G --coordinator-memory 6G --num-files 200 --batch-size 1000 --spark-memory-fraction 0.1
+```
+
+# Analyze using Spark UI
+Can use Spark UI to view the training process, on EMR console, Applications tab, there is a button named 'Enable an SSH connection', follow the steps there to configure Chrome proxy, and then can open the HDFS Name Node, Resource Manager, etc. links in Chrome.
+
