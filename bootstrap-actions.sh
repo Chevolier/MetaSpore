@@ -2,8 +2,8 @@
 
 echo "Installing metaspore related packages ..."
 
-aws s3 cp s3://spark-emr-data/wheels/metaspore-1.2.0-cp39-cp39-linux_x86_64.whl .
-sudo pip install metaspore-1.2.0-cp39-cp39-linux_x86_64.whl
+aws s3 cp s3://spark-emr-data/wheels/metaspore-1.3.0-cp39-cp39-linux_x86_64.whl .
+sudo pip install metaspore-1.3.0-cp39-cp39-linux_x86_64.whl
 sudo pip install torch==1.11.0+cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html
 sudo pip install https://ks3-cn-beijing.ksyuncs.com/dmetasoul-bucket/releases/spark/pyspark-3.1.2.265f9ad4ee-py2.py3-none-any.whl
 sudo pip install numpy==1.23.5
