@@ -487,7 +487,7 @@ class EmbeddingOperator(torch.nn.Module):
             if 'weight' in column:
                 weight_columns.append(column)
             else:
-                value_columns.append(column)        
+                value_columns.append(column)    
 
         minibatch_value = minibatch[value_columns]
         per_sample_weights = np.hstack(minibatch[weight_columns].to_numpy().ravel())

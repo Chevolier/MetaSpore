@@ -170,12 +170,12 @@ def train(args):
 
         train_dataset = ms.input.read_s3_csv(spark_session, 
                                             train_dataset_path, 
-                                            format='orc',
+                                            format=args.data_format,
                                             shuffle=args.shuffle, 
-                                            delimiter='\t', 
-                                            multivalue_delimiter="\001", 
-                                            column_names=column_names,
-                                            multivalue_column_names=column_names[:-1])
+                                            delimiter='\t',
+                                            # multivalue_delimiter="\001", 
+                                            column_names=column_names,)
+                                            # multivalue_column_names=column_names[:-1])
 
         # print(f"Number of training samples: {train_dataset.count()}")708
         print("Start training ...")
@@ -218,6 +218,7 @@ if __name__ == '__main__':
     parser.add_argument('--file-base-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/14/00/')
     parser.add_argument('--test-dataset-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/15/00/part-00000-f79b9ee6-aaf5-4117-88d5-44eea69dcea3-c000.snappy.orc')    
     parser.add_argument('--model-out-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/output/dev/model_out/')    
+    parser.add_argument('--data-format', type=str, default='orc')  
     parser.add_argument('--num-files', type=int, default=10)
     parser.add_argument('--batch-size', type=int, default=100)
     parser.add_argument('--worker-count', type=int, default=1)
