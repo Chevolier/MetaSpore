@@ -27,10 +27,10 @@ def read_s3_csv(spark_session, url, format='csv', shuffle=False, num_workers=1,
                 header=False, nullable=False, delimiter="\002", multivalue_delimiter="\001",
                 encoding="UTF-8", schema=None, column_names=None, multivalue_column_names=None):
     from .url_utils import use_s3a
-    # from .schema_utils import make_csv_schema
-    # from .schema_utils import make_csv_transformer
-    # schema = make_csv_schema(schema, column_names, multivalue_column_names)
-    # input_schema, df_transformer = make_csv_transformer(schema, multivalue_delimiter)
+    from .schema_utils import make_csv_schema
+    from .schema_utils import make_csv_transformer
+    schema = make_csv_schema(schema, column_names, multivalue_column_names)
+    input_schema, df_transformer = make_csv_transformer(schema, multivalue_delimiter)
 
     # allow for local storage and HDFS read
     if isinstance(url, str):
@@ -45,10 +45,10 @@ def read_s3_csv(spark_session, url, format='csv', shuffle=False, num_workers=1,
             .option("nullable", str(bool(nullable)).lower())
             .option("delimiter", delimiter)
             .option("encoding", encoding)
-            # .schema(input_schema)
+            .schema(input_schema)
             .load(data_path))
         
-    # df = df_transformer(df)
+    df = df_transformer(df)
     if shuffle and num_workers > 1:
         df = shuffle_df(df, num_workers)
     else:
