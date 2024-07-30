@@ -143,7 +143,7 @@ def main(args):
         processed_df = train_dataset.mapInPandas(process_minibatch, schema=output_schema)
 
         # Save the processed DataFrame as ORC files
-        num_partitions = args.num_files  # Set to 1 to ensure a single file or adjust based on your data size
+        # num_partitions = args.num_files  # Set to 1 to ensure a single file or adjust based on your data size
         processed_df_repartitioned = processed_df.repartition(num_partitions)
 
         # processed_df_repartitioned.printSchema()
