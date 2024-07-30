@@ -160,9 +160,9 @@ def train(args):
         column_names = [column.split(' ')[1].strip() for column in column_names.decode('utf-8').split('\n') if column.strip()]
         print(f"column_names: {column_names}")
         
-        file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
+        # file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
         # file_names = [f'part-{str(i).zfill(5)}-e347d1d1-df46-4196-be9e-c2d35055ac2f-c000.snappy.orc' for i in range(args.num_files)]
-        # file_names = [f'part-{str(i).zfill(5)}-58da114a-7d29-4026-84f4-f8dc6ad3d641-c000.snappy.parquet' for i in range(args.num_files)]
+        file_names = [f'part-{str(i).zfill(5)}-8cc1e6a7-2ddf-400f-889b-a85068f9d414-c000.snappy.parquet' for i in range(args.num_files)]
 
         train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
 

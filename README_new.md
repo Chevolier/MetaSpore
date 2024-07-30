@@ -78,7 +78,7 @@ cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_T
 make -j8
 
 # Then install  
-pip install metaspore-1.2.0-cp38-cp38-linux_x86_64.whl
+pip install metaspore-1.2.0-cp39-cp39-linux_x86_64.whl
 
 # Then use the following code to test
 python widedeep.py --conf conf/widedeep_ml_1m.yaml.dev
