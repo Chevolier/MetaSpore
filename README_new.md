@@ -123,11 +123,11 @@ Option 1: In EMR console, add a step by setting:
 Type: Custom JAR
 Name: training
 JAR location: command-runner.jar
-Arguments: spark-submit --deploy-mode cluster --master yarn --driver-cores 1 /home/hadoop/train.py --worker-count 8 --server-count 4 --worker-cpu 1 --server-cpu 1 --worker-memory 6G --server-memory 6G --coordinator-memory 6G --num-files 200 --batch-size 1000 --spark-memory-fraction 0.1
+Arguments: spark-submit --deploy-mode cluster --master yarn --driver-cores 1 /home/hadoop/train.py --worker-count 8 --server-count 4 --worker-cpu 1 --server-cpu 1 --worker-memory 6G --server-memory 6G --coordinator-memory 6G --num-files 200 --batch-size 1000 --spark-memory-fraction 0.1 --num-files 1 --data-format orc --file-base-path s3://spark-emr-data/processed/orcs/2024/06/14/
 
 Option 2: Use the following command when you sshed into the master EC2 node.
 ```bash
-spark-submit --deploy-mode cluster --master yarn --driver-cores 1 /home/hadoop/train.py --worker-count 8 --server-count 4 --worker-cpu 1 --server-cpu 1 --worker-memory 6G --server-memory 6G --coordinator-memory 6G --num-files 200 --batch-size 1000 --spark-memory-fraction 0.1
+spark-submit --deploy-mode cluster --master yarn --driver-cores 1 /home/hadoop/train.py --worker-count 8 --server-count 4 --worker-cpu 1 --server-cpu 1 --worker-memory 6G --server-memory 6G --coordinator-memory 6G --num-files 200 --batch-size 1000 --spark-memory-fraction 0.1 --num-files 1 --data-format orc --file-base-path s3://spark-emr-data/processed/orcs/2024/06/14/
 ```
 
 # Analyze using Spark UI
