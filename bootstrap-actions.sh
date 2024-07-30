@@ -53,5 +53,6 @@ sudo aws s3 cp s3://spark-emr-data/jars/spark-yarn_2.12-3.1.2.jar /usr/local/lib
 sudo aws s3 cp s3://spark-emr-data/jars/hadoop-yarn-server-web-proxy-2.10.1.jar /usr/local/lib/python3.9/site-packages/pyspark/jars/
 
 aws s3 cp s3://spark-emr-data/train.py ~/
+aws s3 cp s3://spark-emr-data/data_process.py ~/
 
 echo "Bootstrap action completed successfully"
