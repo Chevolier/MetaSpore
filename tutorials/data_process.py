@@ -115,10 +115,10 @@ def main(args):
         columns = [column.split(' ')[1].strip() for column in columns.decode('utf-8').split('\n') if column.strip()]
         print(f"column_names: {columns}")
 
-        file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
-        train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
+        # file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
+        # train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
 
-        # train_dataset_path = [args.file_base_path + f"/{i:02d}/" for i in range(args.num_files)]
+        train_dataset_path = [args.file_base_path + f"/{i:02d}/" for i in range(args.num_files)]
 
         # Load the dataset
         train_dataset = ms.input.read_s3_csv(spark_session, 
