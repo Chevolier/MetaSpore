@@ -51,7 +51,7 @@ sudo apt install cmake
 git clone https://github.com/Microsoft/vcpkg.git ~/.vcpkg
 ~/.vcpkg/bootstrap-vcpkg.sh
 
-cd ~/.vcpkg/triplets
+# cd ~/.vcpkg/triplets
 
 # create a ~/.vcpkg/triplets/x64-linux-custom.cmake with the following contents
 # This is the issue which leads to undefined symbol or unreferenced symbol during link, D_GLIBCXX_USE_CXX11_ABI=0 should be used for all packages installed using vcpkg, since CMakeFiles.txt also used this.
@@ -69,7 +69,7 @@ git clone https://github.com/meta-soul/MetaSpore.git
 cd MetaSpore
 
 # Download MNIST dataset from s3
-mkdir cpp/tests/data/MNIST
+mkdir -p cpp/tests/data/MNIST
 aws s3 sync s3://sagemaker-us-west-2-452145973879/datasets/MNIST/ cpp/tests/data/MNIST
 
 mkdir build && cd build

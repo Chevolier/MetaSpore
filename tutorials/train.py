@@ -160,8 +160,13 @@ def train(args):
         column_names = [column.split(' ')[1].strip() for column in column_names.decode('utf-8').split('\n') if column.strip()]
         print(f"column_names: {column_names}")
         
+        ## raw orc files
         # file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
-        # file_names = [f'part-{str(i).zfill(5)}-e347d1d1-df46-4196-be9e-c2d35055ac2f-c000.snappy.orc' for i in range(args.num_files)]
+        
+        ## value weight splited orc files
+        # file_names = [f'part-{str(i).zfill(5)}-5c3a2dc4-4ba9-44ce-b647-76d86bf86e92-c000.snappy.orc' for i in range(args.num_files)]
+        
+        ## value weight splited parquet files
         file_names = [f'part-{str(i).zfill(5)}-8cc1e6a7-2ddf-400f-889b-a85068f9d414-c000.snappy.parquet' for i in range(args.num_files)]
 
         train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
@@ -174,7 +179,7 @@ def train(args):
                                             shuffle=args.shuffle, 
                                             delimiter='\t',
                                             # multivalue_delimiter="\001", 
-                                            column_names=column_names,)
+                                            column_names=column_names,) # .limit(args.num_rows)
                                             # multivalue_column_names=column_names[:-1])
 
         # print(f"Number of training samples: {train_dataset.count()}")708
@@ -220,6 +225,7 @@ if __name__ == '__main__':
     parser.add_argument('--model-out-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/output/dev/model_out/')    
     parser.add_argument('--data-format', type=str, default='orc')  
     parser.add_argument('--num-files', type=int, default=10)
+    parser.add_argument('--num-rows', type=int, default=10000)
     parser.add_argument('--batch-size', type=int, default=100)
     parser.add_argument('--worker-count', type=int, default=1)
     parser.add_argument('--server-count', type=int, default=1)
