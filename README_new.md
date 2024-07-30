@@ -78,16 +78,16 @@ cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_T
 make -j8
 
 # Then install  
-pip install metaspore-1.2.0-cp39-cp39-linux_x86_64.whl
+pip install metaspore-1.4.0-cp39-cp39-linux_x86_64.whl
 
 # Then use the following code to test
-python widedeep.py --conf conf/widedeep_ml_1m.yaml.dev
+# python widedeep.py --conf conf/widedeep_ml_1m.yaml.dev
 ```
 
 # Start an EMR Cluster
 1. Change bootstrap-actions.sh, most importantly, change the required package s3 location when necessary.
 2. Upload the bootstrap-actions.sh to an S3 location.
-3. Follow the following configs to start EMR cluster, note to change core instance numbers, add bootstrap-actions.sh s3 location, you can create an Amazon EMR service role, EC2 instance profile for Amazon EMR in the first time, later can reuse: 
+3. Follow the following configs to start EMR cluster, note to change core instance numbers, add bootstrap-actions.sh s3 location, you can create an Amazon EMR service role, EC2 instance profile for Amazon EMR in the first time, later can reuse:
 
 ![EMR Config Step 0](images/EMR-config-0.png)
 ![EMR Config Step 1](images/EMR-config-1.png)
