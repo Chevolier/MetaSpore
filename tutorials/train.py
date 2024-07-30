@@ -29,7 +29,7 @@ def log_loss(yhat, y):
 
 # 自定义的主函数入口
 class DNNModelMain(nn.Module):
-    def __init__(self, schema_path): # feature_config_file
+    def __init__(self, schema_path, preprocessed_data=False): # feature_config_file
         super().__init__()
         self._embedding_size = 16
         # self._schema_dir = schema_dir # root_dir + '/schema/'
@@ -43,6 +43,7 @@ class DNNModelMain(nn.Module):
             # enable_feature_gen=True,
             # feature_config_file=feature_config_file,
             # enable_fgs=False
+            preprocessed_data=preprocessed_data
         )
         self._sparse.updater = ms.FTRLTensorUpdater(alpha=0.01)
         self._sparse.initializer = ms.NormalTensorInitializer(var=0.001)
@@ -142,7 +143,7 @@ def train(args):
                                         spark_confs=spark_confs)
 
     with spark_session:
-        module = DNNModelMain(args.combine_schema_path)
+        module = DNNModelMain(args.combine_schema_path, args.preprocessed_data)
 
         estimator = ms.PyTorchEstimator(module=module,
                                         worker_count=args.worker_count,
@@ -167,14 +168,24 @@ def train(args):
             else:
                 train_dataset_path.append(args.file_base_path+f"{i:02d}/")
 
-        train_dataset = ms.input.read_s3_csv(spark_session, 
-                                            train_dataset_path, 
-                                            format=args.data_format,
-                                            shuffle=args.shuffle, 
-                                            delimiter='\t',
-                                            # multivalue_delimiter="\001", 
-                                            column_names=column_names,) # .limit(args.num_rows)
-                                            # multivalue_column_names=column_names[:-1])
+        if args.preprocessed_data: 
+            train_dataset = ms.input.read_s3_csv(spark_session, 
+                                                train_dataset_path, 
+                                                format=args.data_format,
+                                                shuffle=args.shuffle, 
+                                                delimiter='\t',
+                                                column_names=column_names,
+                                                preprocessed_data=args.preprocessed_data)
+        else:
+            train_dataset = ms.input.read_s3_csv(spark_session, 
+                                                train_dataset_path, 
+                                                format=args.data_format,
+                                                shuffle=args.shuffle, 
+                                                delimiter='\t',
+                                                multivalue_delimiter="\001", 
+                                                column_names=column_names,
+                                                multivalue_column_names=column_names[:-1],
+                                                preprocessed_data=args.preprocessed_data)
 
         # print(f"Number of training samples: {train_dataset.count()}")708
         print("Start training ...")
@@ -236,6 +247,8 @@ if __name__ == '__main__':
     parser.add_argument('--shuffle-training-dataset', type=str_to_bool, default=False,
                     help="Whether to shuffle the dataset. Use 'true' or 'false'.")
     parser.add_argument('--local', action='store_true')  # Use store_true for the local parameter
+    parser.add_argument('--preprocessed-data', type=str_to_bool, default=False,
+                    help="Whether the dataset is preprocessed. Use 'true' or 'false'.")
 
     args = parser.parse_args()
 

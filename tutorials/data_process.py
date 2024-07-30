@@ -115,10 +115,12 @@ def main(args):
         columns = [column.split(' ')[1].strip() for column in columns.decode('utf-8').split('\n') if column.strip()]
         print(f"column_names: {columns}")
 
-        # file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
-        # train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
-
-        train_dataset_path = [args.file_base_path + f"/{i:02d}/" for i in range(args.num_files)]
+        train_dataset_path = []
+        for i in range(args.num_files):
+            if 'part' in args.file_base_path:
+                train_dataset_path.append(args.file_base_path.replace('part-00000', f'part-{i:05d}'))
+            else:
+                train_dataset_path.append(args.file_base_path+f"{i:02d}/")
 
         # Load the dataset
         train_dataset = ms.input.read_s3_csv(spark_session, 
@@ -128,7 +130,8 @@ def main(args):
                                             delimiter='\t', 
                                             multivalue_delimiter="\001", 
                                             column_names=columns,
-                                            multivalue_column_names=columns[:-1])
+                                            multivalue_column_names=columns[:-1],
+                                            preprocessed_data=False)
 
         num_partitions = train_dataset.rdd.getNumPartitions()
         print(f"Number of orcs: {args.num_files}, total number of rows: {train_dataset.count()}")
@@ -169,7 +172,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--column-name-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/schema/column_name_mobivista.txt')
     parser.add_argument('--combine-schema-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/schema/combine_schema_mobivista.txt')
-    parser.add_argument('--file-base-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/14/00/')
+    parser.add_argument('--file-base-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/14/00/part-00000-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc')
     parser.add_argument('--test-dataset-path', type=str, default='s3://mv-mtg-di-for-poc-datalab/2024/06/15/00/part-00000-f79b9ee6-aaf5-4117-88d5-44eea69dcea3-c000.snappy.orc')    
     parser.add_argument('--output-dir', type=str, default='/home/ubuntu/data/processed/orcs/')    
     parser.add_argument('--output-format', type=str, default='orc')    

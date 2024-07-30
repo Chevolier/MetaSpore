@@ -90,7 +90,8 @@ class EmbeddingOperator(torch.nn.Module):
                  output_batchsize1_if_only_level0=False,
                  use_nan_fill=False,
                  save_as_text=False,
-                 embedding_bag_mode='sum'
+                 embedding_bag_mode='sum',
+                 preprocessed_data=False
                 ):
         if embedding_size is not None:
             if not isinstance(embedding_size, int) or embedding_size <= 0:
@@ -134,6 +135,7 @@ class EmbeddingOperator(torch.nn.Module):
         # init a embedding_bag
         self.sparse_embedding_bag = EmbeddingBagModule(self.feature_count, embedding_size, mode=self.embedding_bag_mode)
         self._clean()
+        self._preprocessed_data = preprocessed_data
 
     # the inerface to call the export_onnx
     @torch.jit.unused
@@ -473,24 +475,25 @@ class EmbeddingOperator(torch.nn.Module):
     def _combine_to_indices_and_offsets(self, minibatch, feature_offset):
         import pyarrow as pa
 
-        ## Test using online processing of weights
-        # minibatch_value, minibatch_weight = split_value_weight(minibatch)
-        # flat_weights = [weight for sublist in minibatch_weight.values.flatten() for weight in sublist]
-        # per_sample_weights = np.array(flat_weights, dtype=np.float32)
+        if self._preprocessed_data:
+            value_columns = []
+            weight_columns = []
+            for column in minibatch.columns:
+                if column == 'label':
+                    continue
 
-        value_columns = []
-        weight_columns = []
-        for column in minibatch.columns:
-            if column == 'label':
-                continue
+                if 'weight' in column:
+                    weight_columns.append(column)
+                else:
+                    value_columns.append(column)    
 
-            if 'weight' in column:
-                weight_columns.append(column)
-            else:
-                value_columns.append(column)    
-
-        minibatch_value = minibatch[value_columns]
-        per_sample_weights = np.hstack(minibatch[weight_columns].to_numpy().ravel())
+            minibatch_value = minibatch[value_columns]
+            per_sample_weights = np.hstack(minibatch[weight_columns].to_numpy().ravel())
+        else:
+            # Test using online processing of weights
+            minibatch_value, minibatch_weight = split_value_weight(minibatch)
+            flat_weights = [weight for sublist in minibatch_weight.values.flatten() for weight in sublist]
+            per_sample_weights = np.array(flat_weights, dtype=np.float32)
 
         # do feature extraction using only minibatch_value
         batch = pa.RecordBatch.from_pandas(minibatch_value)
