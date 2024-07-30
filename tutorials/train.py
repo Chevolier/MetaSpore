@@ -164,10 +164,10 @@ def train(args):
         # file_names = [f'part-{str(i).zfill(5)}-1e73cc51-9b17-4439-9d71-7d505df2cae3-c000.snappy.orc' for i in range(args.num_files)]
         
         ## value weight splited orc files
-        # file_names = [f'part-{str(i).zfill(5)}-5c3a2dc4-4ba9-44ce-b647-76d86bf86e92-c000.snappy.orc' for i in range(args.num_files)]
+        file_names = [f'part-{str(i).zfill(5)}-5c3a2dc4-4ba9-44ce-b647-76d86bf86e92-c000.snappy.orc' for i in range(args.num_files)]
         
         ## value weight splited parquet files
-        file_names = [f'part-{str(i).zfill(5)}-8cc1e6a7-2ddf-400f-889b-a85068f9d414-c000.snappy.parquet' for i in range(args.num_files)]
+        # file_names = [f'part-{str(i).zfill(5)}-8cc1e6a7-2ddf-400f-889b-a85068f9d414-c000.snappy.parquet' for i in range(args.num_files)]
 
         train_dataset_path = [args.file_base_path + file_name for file_name in file_names]
 
