@@ -115,54 +115,56 @@ def main(args):
         columns = [column.split(' ')[1].strip() for column in columns.decode('utf-8').split('\n') if column.strip()]
         print(f"column_names: {columns}")
 
-        train_dataset_path = []
+        # train_dataset_path = []
         for i in range(args.num_files):
             if 'part' in args.file_base_path:
-                train_dataset_path.append(args.file_base_path.replace('part-00000', f'part-{i:05d}'))
+                # train_dataset_path.append(args.file_base_path.replace('part-00000', f'part-{i:05d}'))
+                train_dataset_path = args.file_base_path.replace('part-00000', f'part-{i:05d}')
             else:
-                train_dataset_path.append(args.file_base_path+f"{i:02d}/")
+                # train_dataset_path.append(args.file_base_path+f"/{i:02d}/")
+                train_dataset_path = args.file_base_path+f"/{i:02d}/"
 
-        # Load the dataset
-        train_dataset = ms.input.read_s3_csv(spark_session, 
-                                            train_dataset_path, 
-                                            format='orc',
-                                            shuffle=args.shuffle,
-                                            delimiter='\t', 
-                                            multivalue_delimiter="\001", 
-                                            column_names=columns,
-                                            multivalue_column_names=columns[:-1],
-                                            preprocessed_data=False)
+            # Load the dataset
+            train_dataset = ms.input.read_s3_csv(spark_session, 
+                                                train_dataset_path, 
+                                                format='orc',
+                                                shuffle=args.shuffle,
+                                                delimiter='\t', 
+                                                multivalue_delimiter="\001", 
+                                                column_names=columns,
+                                                multivalue_column_names=columns[:-1],
+                                                preprocessed_data=False)
 
-        num_partitions = train_dataset.rdd.getNumPartitions()
-        print(f"Number of orcs: {args.num_files}, total number of rows: {train_dataset.count()}")
-        print(f"Number of partitions: {num_partitions}")
+            num_partitions = train_dataset.rdd.getNumPartitions()
+            print(f"Number of orcs: {args.num_files}, total number of rows: {train_dataset.count()}")
+            print(f"Number of partitions: {num_partitions}")
+            
+            # train_dataset.printSchema()
+            # train_dataset.show(5)
+
+            start_time = time.time()
+
+            output_schema = generate_output_schema(train_dataset.columns)
+            processed_df = train_dataset.mapInPandas(process_minibatch, schema=output_schema)
+
+            # Save the processed DataFrame as ORC files
+            # num_partitions = args.num_files  # Set to 1 to ensure a single file or adjust based on your data size
+            processed_df_repartitioned = processed_df.repartition(num_partitions)
+
+            # processed_df_repartitioned.printSchema()
+            # processed_df_repartitioned.show(5)
+
+            print(f"Total number of processed rows: {processed_df_repartitioned.count()}")
+            print(f"Total number of processed partitions: {processed_df_repartitioned.rdd.getNumPartitions()}")
         
-        # train_dataset.printSchema()
-        # train_dataset.show(5)
+            if not os.path.exists(args.output_dir):
+                os.makedirs(args.output_dir, exist_ok=True)
 
-        start_time = time.time()
+            processed_df_repartitioned.write.mode('overwrite').format(args.output_format).save(args.output_dir+f"/{i:02d}/")
 
-        output_schema = generate_output_schema(train_dataset.columns)
-        processed_df = train_dataset.mapInPandas(process_minibatch, schema=output_schema)
+            time_cost = time.time() - start_time
 
-        # Save the processed DataFrame as ORC files
-        # num_partitions = args.num_files  # Set to 1 to ensure a single file or adjust based on your data size
-        processed_df_repartitioned = processed_df.repartition(num_partitions)
-
-        # processed_df_repartitioned.printSchema()
-        # processed_df_repartitioned.show(5)
-
-        print(f"Total number of processed rows: {processed_df_repartitioned.count()}")
-        print(f"Total number of processed partitions: {processed_df_repartitioned.rdd.getNumPartitions()}")
-      
-        if not os.path.exists(args.output_dir):
-            os.makedirs(args.output_dir, exist_ok=True)
-
-        processed_df_repartitioned.write.mode('overwrite').format(args.output_format).save(args.output_dir)
-
-        time_cost = time.time() - start_time
-
-        print(f"Processing time cost: {time_cost:.2f} s.")
+            print(f"Processing time cost: {time_cost:.2f} s.")
 
         # Stop the Spark session
         spark_session.stop()
