@@ -115,6 +115,10 @@ def main(args):
             # 'spark.driver.memory': '15g',
             'spark.memory.fraction': args.spark_memory_fraction,
             # 'spark.sql.files.maxPartitionBytes': '256MB'
+            'spark.hadoop.fs.s3a.connection.maximum': '100',
+            'spark.hadoop.fs.s3a.threads.max': '50',
+            'spark.hadoop.fs.s3a.fast.upload': 'true',
+            'spark.default.parallelism': '4200',
         }
 
     spark_session = ms.spark.get_session(local=args.local,
@@ -180,9 +184,15 @@ def main(args):
             output_schema = generate_output_schema(train_dataset.columns)
             processed_df = train_dataset.mapInPandas(process_minibatch, schema=output_schema)
 
+            end_time_process = time.time()
+            duration_process = end_time_process - start_time
+
             # Save the processed DataFrame as ORC files
             # num_partitions = args.num_files  # Set to 1 to ensure a single file or adjust based on your data size
             processed_df_repartitioned = processed_df.repartition(num_orcs)
+
+            end_time_repartition = time.time()
+            duration_repartition = end_time_repartition - end_time_process
 
             # processed_df_repartitioned.printSchema()
             # processed_df_repartitioned.show(5)
@@ -190,14 +200,18 @@ def main(args):
             # print(f"Total number of processed rows: {processed_df_repartitioned.count()}")
             # print(f"Total number of processed partitions: {processed_df_repartitioned.rdd.getNumPartitions()}")
         
-            if not os.path.exists(args.output_dir):
-                os.makedirs(args.output_dir, exist_ok=True)
+            # if not os.path.exists(args.output_dir):
+            #     os.makedirs(args.output_dir, exist_ok=True)
 
             processed_df_repartitioned.write.mode('overwrite').format(args.output_format).save(args.output_dir+f"{i:02d}/")
 
-            time_cost = time.time() - start_time
+            end_time_write = time.time()
+            duration_write = end_time_write - end_time_repartition
 
-            print(f"Processing time cost: {time_cost:.2f} s.")
+            duration_total = time.time() - start_time
+
+            print(f"Process duration: {duration_process:.2f}s, Repartition duration: {duration_repartition:.2f}s, \
+                  Write duration: {duration_write:.2f}s, Total duration: {duration_total:.2f}s.")
 
         # Stop the Spark session
         spark_session.stop()
