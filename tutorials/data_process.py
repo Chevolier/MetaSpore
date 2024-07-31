@@ -12,6 +12,29 @@ import argparse
 import os
 import pandas as pd
 import numpy as np
+from urllib.parse import urlparse
+import boto3
+
+
+def extract_bucket_and_prefix(s3_path):
+    parsed_url = urlparse(s3_path)
+    bucket_name = parsed_url.netloc
+    prefix = parsed_url.path.lstrip('/')
+    return bucket_name, prefix
+
+def count_orc_files_in_s3(bucket_name, prefix):
+    s3 = boto3.client('s3')
+    paginator = s3.get_paginator('list_objects_v2')
+    num_files = 0
+    for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
+        if 'Contents' in page:
+            num_files += len([obj for obj in page['Contents'] if obj['Key'].endswith('.orc')])
+    return num_files
+
+# bucket_name = 'your-source-bucket'
+# source_prefix = 'path/to/source/'
+# source_file_count = count_orc_files_in_s3(bucket_name, source_prefix)
+
 
 def str_to_bool(value):
     """Convert a string to a boolean."""
@@ -106,6 +129,12 @@ def main(args):
                                         log_level='WARN',
                                         spark_confs=spark_confs)
 
+    if (not args.file_base_path.endswith('/')) and (not 'part' in args.file_base_path):
+        args.file_base_path += '/'
+
+    if not args.output_dir.endswith('/'):
+        args.output_dir += '/'
+
     with spark_session:
 
         column_name_path = use_s3('s3://mv-mtg-di-for-poc-datalab/schema/column_name_mobivista.txt')
@@ -113,16 +142,20 @@ def main(args):
             raise RuntimeError(f"combine schema file {column_name_path!r} not found")
         columns = _metaspore.stream_read_all(column_name_path)
         columns = [column.split(' ')[1].strip() for column in columns.decode('utf-8').split('\n') if column.strip()]
-        print(f"column_names: {columns}")
+        # print(f"column_names: {columns}")
 
         # train_dataset_path = []
         for i in tqdm(range(args.start_id, args.start_id+args.num_files), total=args.num_files):
             if 'part' in args.file_base_path:
                 # train_dataset_path.append(args.file_base_path.replace('part-00000', f'part-{i:05d}'))
                 train_dataset_path = args.file_base_path.replace('part-00000', f'part-{i:05d}')
+                num_orcs = 1
             else:
                 # train_dataset_path.append(args.file_base_path+f"/{i:02d}/")
-                train_dataset_path = args.file_base_path+f"/{i:02d}/"
+                train_dataset_path = args.file_base_path+f"{i:02d}/"
+                bucket_name, prefix = extract_bucket_and_prefix(train_dataset_path)
+                num_orcs = count_orc_files_in_s3(bucket_name, prefix)
+                print(f'Number of ORC files in {train_dataset_path}: {num_orcs}')
 
             # Load the dataset
             train_dataset = ms.input.read_s3_csv(spark_session, 
@@ -149,7 +182,7 @@ def main(args):
 
             # Save the processed DataFrame as ORC files
             # num_partitions = args.num_files  # Set to 1 to ensure a single file or adjust based on your data size
-            processed_df_repartitioned = processed_df.repartition(args.num_partitions)
+            processed_df_repartitioned = processed_df.repartition(num_orcs)
 
             # processed_df_repartitioned.printSchema()
             # processed_df_repartitioned.show(5)
@@ -160,7 +193,7 @@ def main(args):
             if not os.path.exists(args.output_dir):
                 os.makedirs(args.output_dir, exist_ok=True)
 
-            processed_df_repartitioned.write.mode('overwrite').format(args.output_format).save(args.output_dir+f"/{i:02d}/")
+            processed_df_repartitioned.write.mode('overwrite').format(args.output_format).save(args.output_dir+f"{i:02d}/")
 
             time_cost = time.time() - start_time
 
