@@ -90,10 +90,54 @@ def split_value_weight(minibatch):
 
     return pd.concat([minibatch_value, minibatch_weight, minibatch[['label']]], axis=1)
 
+def split_value_weight_1weight_column(minibatch):
+    start_time = time.time()
+    def split(items):
+        values = []
+        weights = []
+        for item in items:
+            if '\003' in item:
+                value, weight = item.split('\003')
+            else:
+                value, weight = '', '0'
+            values.append(value)
+            weights.append(float(weight))
+        return values, weights
+
+    values_dict = {}
+    weights_dict = {'weight': [[] for _ in range(minibatch.shape[0])]}
+
+    for column in minibatch.columns:
+        if column == 'label':
+            continue
+        values_dict[f'{column}'] = []
+        # weights_dict[f'{column}_weight'] = []
+        for i, items in enumerate(minibatch[column]):
+            try:
+                # items is expected to be a numpy array or list
+                if isinstance(items, (np.ndarray, list)):
+                    values, weights = split(items)
+                else:
+                    values, weights = split([items])
+                values_dict[f'{column}'].append(values)
+                weights_dict['weight'][i].extend(weights)
+            except Exception as e:
+                print(f"split_value_weight error, {e}, items: {items}")
+                values_dict[f'{column}'].append([])
+                weights_dict[f'weight'][i].extend(weights)([])
+
+    minibatch_value = pd.DataFrame(values_dict)
+    minibatch_weight = pd.DataFrame(weights_dict)
+
+    end_time = time.time()
+    split_duration = end_time - start_time
+    # print(f"Type of minibatch: {type(minibatch)}, {minibatch.shape}, split duration: {split_duration:.3f} s.")
+
+    return pd.concat([minibatch_value, minibatch_weight, minibatch[['label']]], axis=1)
 
 def process_minibatch(iterator):
     for minibatch in iterator:
-        yield split_value_weight(minibatch)
+        yield split_value_weight_1weight_column(minibatch)
 
 def generate_output_schema(columns):
     schema_fields = []
@@ -101,8 +145,8 @@ def generate_output_schema(columns):
         if column == 'label':
             continue
         schema_fields.append(StructField(f'{column}', ArrayType(StringType()), True))
-        schema_fields.append(StructField(f'{column}_weight', ArrayType(FloatType()), True))
-
+        # schema_fields.append(StructField(f'{column}_weight', ArrayType(FloatType()), True))
+    schema_fields.append(StructField(f'weight', ArrayType(FloatType()), True))
     schema_fields.append(StructField('label', StringType(), True))
     return StructType(schema_fields)
 
@@ -194,8 +238,8 @@ def main(args):
             end_time_repartition = time.time()
             duration_repartition = end_time_repartition - end_time_process
 
-            # processed_df_repartitioned.printSchema()
-            # processed_df_repartitioned.show(5)
+            processed_df_repartitioned.printSchema()
+            processed_df_repartitioned.show(5)
 
             # print(f"Total number of processed rows: {processed_df_repartitioned.count()}")
             # print(f"Total number of processed partitions: {processed_df_repartitioned.rdd.getNumPartitions()}")
